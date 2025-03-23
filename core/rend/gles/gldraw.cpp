@@ -962,13 +962,10 @@ static void drawVmuTexture(u8 vmuIndex, int width, int height)
 		return;
 	const float vmu_padding_x = 8.f * width / 640.f * 4.f / 3.f / gl.ofbo.aspectRatio;
 	const float vmu_padding_y = 8.f * height / 480.f;
-	const float w = (float)VMU_SCREEN_WIDTH * width / 640.f * 4.f / 3.f / gl.ofbo.aspectRatio
+	w = (float)VMU_SCREEN_WIDTH * width / 640.f * 4.f / 3.f / gl.ofbo.aspectRatio
 			* vmu_screen_params[vmuIndex / 2].vmu_screen_size_mult;
-	const float h = (float)VMU_SCREEN_HEIGHT * height / 480.f
+	h = (float)VMU_SCREEN_HEIGHT * height / 480.f
 			* vmu_screen_params[vmuIndex / 2].vmu_screen_size_mult;
-
-	float x;
-	float y;
 
 	switch (vmu_screen_params[vmuIndex / 2].vmu_screen_position)
 	{
