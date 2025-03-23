@@ -22,6 +22,7 @@
 #include "hw/maple/maple_if.h"
 #include "hw/maple/maple_devs.h"
 #include "imgui.h"
+#include "cfg/option.h"
 #include "imgui_stdlib.h"
 #include "network/net_handshake.h"
 #include "network/ggpo.h"
@@ -2153,6 +2154,14 @@ static void gui_settings_controls(bool& maple_devices_changed)
 			DisabledScope scope(!is_there_any_xhair);
 			OptionSlider("Crosshair Size", config::CrosshairSize, 10, 100);
 		}
+
+		ImGui::Spacing();
+		header("VMU Display");
+		{
+			ImGui::SliderFloat("VMU Size", &config::VmuScreenSize.get(), 0.25f, 10.0f, "%.2fx");
+			ImGui::SliderFloat("VMU Opacity", &config::VmuTransparency.get(), 0.0f, 1.0f, "%.2f");
+		}
+		ImGui::Spacing();		
 		OptionCheckbox("Per Game VMU A1", config::PerGameVmu, "When enabled, each game has its own VMU on port 1 of controller A.");
     }
 }
@@ -2346,7 +2355,8 @@ static void gui_settings_video()
     	}
 #endif
     	OptionCheckbox("Show VMU In-game", config::FloatVMUs, "Show the VMU LCD screens while in-game");
-    	OptionCheckbox("Full Framebuffer Emulation", config::EmulateFramebuffer,
+    	OptionCheckbox("Only Show VMU A1", config::OnlyShowVMUA1, "Allows only 1st VMU screen to show when multiple VMUs used");
+		OptionCheckbox("Full Framebuffer Emulation", config::EmulateFramebuffer,
     			"Fully accurate VRAM framebuffer emulation. Helps games that directly access the framebuffer for special effects. "
     			"Very slow and incompatible with upscaling and wide screen.");
     	OptionCheckbox("Load Custom Textures", config::CustomTextures,

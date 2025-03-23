@@ -925,13 +925,14 @@ static void updateVmuTexture(int vmuIndex)
 static void drawVmuTexture(u8 vmuIndex, int width, int height)
 {
 	const float *color = nullptr;
+	float x, y, w, h; // Define these variables outside of the ifndef block
 #ifndef LIBRETRO
 	const float vmu_padding = 8.f * settings.display.uiScale;
-	const float w = 96.f * settings.display.uiScale;
-	const float h = 64.f * settings.display.uiScale;
+	const float vmu_height = 70.f * settings.display.uiScale * config::VmuScreenSize;
+	const float vmu_width = 48.f / 32.f * vmu_height;
+	w = vmu_width;
+	h = vmu_height;
 
-	float x;
-	float y;
 	if (vmuIndex & 2)
 		x = width - vmu_padding - w;
 	else
@@ -948,7 +949,13 @@ static void drawVmuTexture(u8 vmuIndex, int width, int height)
 		if (vmuIndex & 1)
 			y += vmu_padding + h;
 	}
-	const float blend_factor[4] = { 0.75f, 0.75f, 0.75f, 0.75f };
+	// Apply transparency setting
+	const float blend_factor[4] = {
+		config::VmuTransparency,
+		config::VmuTransparency,
+		config::VmuTransparency,
+		config::VmuTransparency
+	};
 	color = blend_factor;
 #else
 	if (vmuIndex & 1)
@@ -1065,8 +1072,14 @@ void drawVmusAndCrosshairs(int width, int height)
 	if (settings.platform.isConsole() && showVmus)
 	{
 		for (int i = 0; i < 8 ; i++)
+		{
 			if (vmu_lcd_status[i])
+			{
 				drawVmuTexture(i, width, height);
+				if (config::OnlyShowVMUA1)
+					break;
+			}
+		}
 	}
 
 	for (int i = 0 ; i < 4 ; i++)

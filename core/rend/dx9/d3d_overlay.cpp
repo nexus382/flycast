@@ -39,7 +39,7 @@ void D3DOverlay::draw(u32 width, u32 height, bool vmu, bool crosshair)
 	if (vmu)
 	{
 		float vmu_padding = 8.f * settings.display.uiScale;
-		float vmu_height = 70.f * settings.display.uiScale;
+		float vmu_height = 70.f * settings.display.uiScale* config::VmuScreenSize;
 		float vmu_width = 48.f / 32.f * vmu_height;
 
 		for (size_t i = 0; i < vmuTextures.size(); i++)
@@ -84,7 +84,9 @@ void D3DOverlay::draw(u32 width, u32 height, bool vmu, bool crosshair)
 			}
 			device->SetTexture(0, texture);
 			RECT rect { (long)x, (long)y, (long)(x + vmu_width), (long)(y + vmu_height) };
-			drawQuad(rect, D3DCOLOR_ARGB(192, 255, 255, 255));
+			drawQuad(rect, D3DCOLOR_ARGB((int)(config::VmuTransparency * 255), 255, 255, 255));
+			if (config::OnlyShowVMUA1)
+				    break;
 		}
 	}
 	if (crosshair)

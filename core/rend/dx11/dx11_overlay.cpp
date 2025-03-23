@@ -17,6 +17,7 @@
     along with Flycast.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "dx11_overlay.h"
+#include "cfg/option.h"
 #include "rend/osd.h"
 #ifdef LIBRETRO
 #include "vmu_xhair.h"
@@ -30,10 +31,10 @@ void DX11Overlay::draw(u32 width, u32 height, bool vmu, bool crosshair)
 	{
 #ifndef LIBRETRO
 		float vmu_padding = 8.f * settings.display.uiScale;
-		float vmu_height = 70.f * settings.display.uiScale;
+		float vmu_height = 70.f * settings.display.uiScale * config::VmuScreenSize;
 		float vmu_width = 48.f / 32.f * vmu_height;
 
-		const float blend_factor[4] = { 0.75f, 0.75f, 0.75f, 0.75f };
+		const float blend_factor[4] = { config::VmuTransparency, config::VmuTransparency, config::VmuTransparency, config::VmuTransparency };
 		deviceContext->OMSetBlendState(blendStates.getState(true, 8, 8), blend_factor, 0xffffffff);
 #else
 		float vmu_padding_x = 8.f * width / 640.f;
@@ -140,6 +141,8 @@ void DX11Overlay::draw(u32 width, u32 height, bool vmu, bool crosshair)
 			vp.MaxDepth = 1.f;
 			deviceContext->RSSetViewports(1, &vp);
 			quad.draw(vmuTextureViews[i], samplers->getSampler(false));
+									if (config::OnlyShowVMUA1)
+											break;
 		}
 	}
 	if (crosshair)
@@ -199,6 +202,6 @@ void DX11Overlay::draw(u32 width, u32 height, bool vmu, bool crosshair)
 			};
 			deviceContext->OMSetBlendState(blendStates.getState(true, 4, 5), nullptr, 0xffffffff);
 			quad.draw(xhairTextureView, samplers->getSampler(false), colors);
+		    }
 		}
 	}
-}

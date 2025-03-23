@@ -129,8 +129,8 @@ void VulkanOverlay::Draw(vk::CommandBuffer commandBuffer, vk::Extent2D viewport,
 	{
 #ifndef LIBRETRO
 		f32 vmu_padding = 8.f * scaling;
-		f32 vmu_height = 32.f * scaling;
-		f32 vmu_width = 48.f * scaling;
+		f32 vmu_height = 32.f * scaling * config::VmuScreenSize;
+		f32 vmu_width = 48.f / 32.f * vmu_height;
 #else
 		f32 vmu_padding_x = 8.f * viewport.width / 640.f;
 		f32 vmu_padding_y = 8.f * viewport.height / 480.f;
@@ -148,7 +148,7 @@ void VulkanOverlay::Draw(vk::CommandBuffer commandBuffer, vk::Extent2D viewport,
 #ifndef LIBRETRO
 		vmu_height *= 2.f;
 		vmu_width *= 2.f;
-		float blendConstants[4] = { 0.75f, 0.75f, 0.75f, 0.75f };
+		float blendConstants[4] = { config::VmuTransparency, config::VmuTransparency, config::VmuTransparency, config::VmuTransparency };
 		color = blendConstants;
 #else
 		vmu_width /= config::ScreenStretching / 100.f;
@@ -210,6 +210,8 @@ void VulkanOverlay::Draw(vk::CommandBuffer commandBuffer, vk::Extent2D viewport,
 			commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(x, y), vk::Extent2D(w, h)));
 
 			drawers[i]->Draw(commandBuffer, vmuTextures[i]->GetImageView(), vtx, true, color);
+			if (config::OnlyShowVMUA1)
+				break;		
 		}
 	}
 	if (crosshair)
