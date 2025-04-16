@@ -540,6 +540,47 @@ bool GamepadDevice::gamepad_axis_input(u32 code, int value)
 			pressedButtons[targetPort].erase(normalizedCode);
 	}
 
+	// Process button combinations when axis state changes
+	// Only process if the axis value crossed our threshold (button press or release event)
+	bool wasPressed = std::abs(value) >= 16384;
+	bool wasReleased = std::abs(value) < 8192;
+	
+	if (wasPressed || wasReleased) {
+		// Process button combinations
+		for (const auto& pair : input_mapper->get_all_button_combinations(targetPort))
+		{
+			// We only care about combinations with more than one button
+			if (pair.second.buttons.size() <= 1)
+				continue;
+				
+			// Check if this axis is part of this combination
+			// Use either the original code or normalized code for triggers
+			bool isInCombo = false;
+			for (u32 comboCode : pair.second.buttons) {
+				if (comboCode == code || (isTrigger && comboCode == normalizedCode)) {
+					isInCombo = true;
+					break;
+				}
+			}
+			if (!isInCombo)
+				continue;
+				
+			// Check if the combination state changed because of this axis movement
+			bool comboPressed = isButtonCombinationPressed(targetPort, pair.second);
+			
+			// Handle the combination state
+			if (_maple_port == 4)
+			{
+				for (int port = 0; port < 4; port++)
+					rc = handleButtonInput(port, pair.first, comboPressed) || rc;
+			}
+			else
+			{
+				rc = handleButtonInput(_maple_port, pair.first, comboPressed) || rc;
+			}
+		}
+	}
+
 	return rc;
 }
 

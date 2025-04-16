@@ -4,6 +4,9 @@
 #include "stdclass.h"
 #include "hw/sh4/sh4_sched.h"
 #include "serialize.h"
+#include "hw/gdrom/gdrom_if.h"
+#include "oslib/storage.h"
+#include "emulator.h"
 
 Disc* chd_parse(const char* file, std::vector<u8> *digest);
 Disc* gdi_parse(const char* file, std::vector<u8> *digest);
@@ -98,10 +101,29 @@ Disc* OpenDisc(const std::string& path, std::vector<u8> *digest)
 
 namespace gdr {
 
+#define RICK_ROLL_EASTER_EGG 1
+
+// Add Rick Roll mode flag
+bool rickRollMode = false;
+
 static bool loadDisk(const std::string& path)
 {
 	termDrive();
 
+#if RICK_ROLL_EASTER_EGG
+	// Activate Rick Roll mode
+	rickRollMode = true;
+	INFO_LOG(GDROM, "Rick Roll mode activated! Never gonna give you up!");
+	
+	// We still need to simulate a successful disk load
+	NullDriveDiscType = Busy;
+	gd_setdisc();
+	
+	// Let the rest of the emulator know we're in Rick Roll mode
+	settings.content.gameId = "RICKROLL";
+	
+	return true;
+#else
 	//try all drivers
 	std::vector<u8> digest;
 	disc = OpenDisc(path, config::GGPOEnable ? &digest : nullptr);
@@ -120,6 +142,7 @@ static bool loadDisk(const std::string& path)
 	}
 
 	return disc != NULL;
+#endif
 }
 
 static bool doDiscSwap(const std::string& path);

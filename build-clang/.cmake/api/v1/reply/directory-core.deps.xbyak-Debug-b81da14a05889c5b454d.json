@@ -1,0 +1,86 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"core/deps/xbyak/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 28,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 33,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 39,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/xbyak",
+			"paths" : 
+			[
+				"build-clang/core/deps/xbyak/xbyakConfig.cmake"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/xbyak",
+			"exportName" : "xbyak-targets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "xbyak::@73a18d5881f405020573",
+					"index" : 0
+				}
+			],
+			"paths" : 
+			[
+				"core/deps/xbyak/CMakeFiles/Export/4437986e48c3c33173e9ce31677f9aff/xbyak-targets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "include/xbyak",
+			"paths" : 
+			[
+				"core/deps/xbyak/xbyak/xbyak.h",
+				"core/deps/xbyak/xbyak/xbyak_bin2hex.h",
+				"core/deps/xbyak/xbyak/xbyak_mnemonic.h",
+				"core/deps/xbyak/xbyak/xbyak_util.h"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "core/deps/xbyak",
+		"source" : "core/deps/xbyak"
+	}
+}

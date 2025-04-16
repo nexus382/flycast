@@ -1,0 +1,66 @@
+{
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_custom_target"
+		],
+		"files" : 
+		[
+			"core/deps/libchdr/deps/zstd-1.5.6/build/cmake/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 176,
+				"parent" : 0
+			}
+		]
+	},
+	"id" : "clean-all::@207c36bf23e5c5f38d90",
+	"name" : "clean-all",
+	"paths" : 
+	{
+		"build" : "core/deps/libchdr/deps/zstd-1.5.6/build/cmake",
+		"source" : "core/deps/libchdr/deps/zstd-1.5.6/build/cmake"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"name" : "CMake Rules",
+			"sourceIndexes" : 
+			[
+				1
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "build-clang/core/deps/libchdr/deps/zstd-1.5.6/build/cmake/CMakeFiles/clean-all",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build-clang/core/deps/libchdr/deps/zstd-1.5.6/build/cmake/CMakeFiles/clean-all.rule",
+			"sourceGroupIndex" : 1
+		}
+	],
+	"type" : "UTILITY"
+}

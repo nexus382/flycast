@@ -1,0 +1,119 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"core/deps/libchdr/deps/zlib-1.3.1/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 182,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 188,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 191,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 194,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "C:/Program Files (x86)/flycast/lib",
+			"paths" : 
+			[
+				"core/deps/libchdr/deps/zlib-1.3.1/zlibd.lib"
+			],
+			"targetId" : "zlib::@5b10dfcd7a410a79a711",
+			"targetIndex" : 30,
+			"targetIsImportLibrary" : true,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "C:/Program Files (x86)/flycast/bin",
+			"paths" : 
+			[
+				"core/deps/libchdr/deps/zlib-1.3.1/zlibd.dll"
+			],
+			"targetId" : "zlib::@5b10dfcd7a410a79a711",
+			"targetIndex" : 30,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "C:/Program Files (x86)/flycast/lib",
+			"paths" : 
+			[
+				"core/deps/libchdr/deps/zlib-1.3.1/zlibstaticd.lib"
+			],
+			"targetId" : "zlibstatic::@5b10dfcd7a410a79a711",
+			"targetIndex" : 31,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "C:/Program Files (x86)/flycast/include",
+			"paths" : 
+			[
+				"build-clang/core/deps/libchdr/deps/zlib-1.3.1/zconf.h",
+				"core/deps/libchdr/deps/zlib-1.3.1/zlib.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "C:/Program Files (x86)/flycast/share/man/man3",
+			"paths" : 
+			[
+				"core/deps/libchdr/deps/zlib-1.3.1/zlib.3"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "C:/Program Files (x86)/flycast/share/pkgconfig",
+			"paths" : 
+			[
+				"build-clang/core/deps/libchdr/deps/zlib-1.3.1/zlib.pc"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "core/deps/libchdr/deps/zlib-1.3.1",
+		"source" : "core/deps/libchdr/deps/zlib-1.3.1"
+	}
+}

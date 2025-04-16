@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "core/deps/xxHash/cmake_unofficial",
+		"source" : "core/deps/xxHash/cmake_unofficial"
+	}
+}

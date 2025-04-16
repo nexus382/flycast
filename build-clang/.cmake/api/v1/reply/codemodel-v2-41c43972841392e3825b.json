@@ -1,0 +1,934 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						4,
+						9,
+						10,
+						11,
+						13,
+						16,
+						17,
+						18,
+						20,
+						21,
+						22,
+						23,
+						24
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-ae54ed90a0c37f3a3418.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						17,
+						18,
+						19
+					]
+				},
+				{
+					"build" : "core/deps/xxHash/cmake_unofficial",
+					"jsonFile" : "directory-core.deps.xxHash.cmake_unofficial-Debug-73a8f3312d08cca4a0a0.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "core/deps/xxHash/cmake_unofficial",
+					"targetIndexes" : 
+					[
+						28
+					]
+				},
+				{
+					"build" : "core/deps/glm",
+					"childIndexes" : 
+					[
+						3
+					],
+					"jsonFile" : "directory-core.deps.glm-Debug-ddd666592f84715be1f9.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "core/deps/glm"
+				},
+				{
+					"build" : "core/deps/glm/glm",
+					"jsonFile" : "directory-core.deps.glm.glm-Debug-8100e0ef7f7560c2781e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 2,
+					"source" : "core/deps/glm/glm"
+				},
+				{
+					"build" : "core/deps/glslang",
+					"childIndexes" : 
+					[
+						5,
+						7,
+						8
+					],
+					"jsonFile" : "directory-core.deps.glslang-Debug-837c21db75c1053a97bc.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.17.2"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 3,
+					"source" : "core/deps/glslang"
+				},
+				{
+					"build" : "core/deps/glslang/glslang",
+					"childIndexes" : 
+					[
+						6
+					],
+					"jsonFile" : "directory-core.deps.glslang.glslang-Debug-41d6978bba4bf0bdd672.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.17.2"
+					},
+					"parentIndex" : 4,
+					"projectIndex" : 3,
+					"source" : "core/deps/glslang/glslang",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						20,
+						21
+					]
+				},
+				{
+					"build" : "core/deps/glslang/glslang/OSDependent/Windows",
+					"jsonFile" : "directory-core.deps.glslang.glslang.OSDependent.Windows-Debug-23f85c48794aaaf85832.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.17.2"
+					},
+					"parentIndex" : 5,
+					"projectIndex" : 3,
+					"source" : "core/deps/glslang/glslang/OSDependent/Windows",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "core/deps/glslang/OGLCompilersDLL",
+					"jsonFile" : "directory-core.deps.glslang.OGLCompilersDLL-Debug-420155a5f59a7950f541.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.17.2"
+					},
+					"parentIndex" : 4,
+					"projectIndex" : 3,
+					"source" : "core/deps/glslang/OGLCompilersDLL",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "core/deps/glslang/SPIRV",
+					"jsonFile" : "directory-core.deps.glslang.SPIRV-Debug-7857caf83123770c8b0d.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.17.2"
+					},
+					"parentIndex" : 4,
+					"projectIndex" : 3,
+					"source" : "core/deps/glslang/SPIRV",
+					"targetIndexes" : 
+					[
+						6
+					]
+				},
+				{
+					"build" : "core/deps/SDL",
+					"jsonFile" : "directory-core.deps.SDL-Debug-7e1612d98c7cefa5197a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.4"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 4,
+					"source" : "core/deps/SDL",
+					"targetIndexes" : 
+					[
+						4,
+						5,
+						26,
+						27
+					]
+				},
+				{
+					"build" : "core/deps/libchdr/deps/zlib-1.3.1",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-core.deps.libchdr.deps.zlib-1.3.1-Debug-6acaaa4a1a64529b2623.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.4.4"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 5,
+					"source" : "core/deps/libchdr/deps/zlib-1.3.1",
+					"targetIndexes" : 
+					[
+						30,
+						31
+					]
+				},
+				{
+					"build" : "core/deps/libchdr/deps/zstd-1.5.6/build/cmake",
+					"childIndexes" : 
+					[
+						12
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-core.deps.libchdr.deps.zstd-1.5.6.build.cmake-Debug-8ada79514c114f66db5b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 6,
+					"source" : "core/deps/libchdr/deps/zstd-1.5.6/build/cmake",
+					"targetIndexes" : 
+					[
+						13
+					]
+				},
+				{
+					"build" : "core/deps/libchdr/deps/zstd-1.5.6/build/cmake/lib",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-core.deps.libchdr.deps.zstd-1.5.6.build.cmake.lib-Debug-d1a660a5759939bc04bd.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 11,
+					"projectIndex" : 7,
+					"source" : "core/deps/libchdr/deps/zstd-1.5.6/build/cmake/lib",
+					"targetIndexes" : 
+					[
+						23
+					]
+				},
+				{
+					"build" : "core/deps/libchdr",
+					"childIndexes" : 
+					[
+						14,
+						15
+					],
+					"jsonFile" : "directory-core.deps.libchdr-Debug-4499388897950bf74d8b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.9"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 8,
+					"source" : "core/deps/libchdr",
+					"targetIndexes" : 
+					[
+						12
+					]
+				},
+				{
+					"build" : "core/deps/libchdr/deps/lzma-24.05",
+					"jsonFile" : "directory-core.deps.libchdr.deps.lzma-24.05-Debug-19e98d9c830c44c9c60f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.9"
+					},
+					"parentIndex" : 13,
+					"projectIndex" : 8,
+					"source" : "core/deps/libchdr/deps/lzma-24.05",
+					"targetIndexes" : 
+					[
+						24
+					]
+				},
+				{
+					"build" : "core/deps/libchdr/tests",
+					"jsonFile" : "directory-core.deps.libchdr.tests-Debug-9212ff635484cdcb8c9c.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.9"
+					},
+					"parentIndex" : 13,
+					"projectIndex" : 8,
+					"source" : "core/deps/libchdr/tests",
+					"targetIndexes" : 
+					[
+						11
+					]
+				},
+				{
+					"build" : "core/deps/nowide",
+					"jsonFile" : "directory-core.deps.nowide-Debug-ef1f5d171be26e1223e3.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.9"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 9,
+					"source" : "core/deps/nowide",
+					"targetIndexes" : 
+					[
+						25
+					]
+				},
+				{
+					"build" : "core/deps/miniupnpc",
+					"jsonFile" : "directory-core.deps.miniupnpc-Debug-18f2aafe6d11bee77b55.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 10,
+					"source" : "core/deps/miniupnpc",
+					"targetIndexes" : 
+					[
+						22
+					]
+				},
+				{
+					"build" : "core/deps/libzip",
+					"childIndexes" : 
+					[
+						19
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-core.deps.libzip-Debug-88c2f20d767afbd98ca3.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 11,
+					"source" : "core/deps/libzip",
+					"targetIndexes" : 
+					[
+						14,
+						15
+					]
+				},
+				{
+					"build" : "core/deps/libzip/lib",
+					"jsonFile" : "directory-core.deps.libzip.lib-Debug-9722b027773f04dd4822.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5.0"
+					},
+					"parentIndex" : 18,
+					"projectIndex" : 11,
+					"source" : "core/deps/libzip/lib",
+					"targetIndexes" : 
+					[
+						29
+					]
+				},
+				{
+					"build" : "core/deps/libelf",
+					"jsonFile" : "directory-core.deps.libelf-Debug-83fc27a59165e658a195.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.7.2"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 12,
+					"source" : "core/deps/libelf",
+					"targetIndexes" : 
+					[
+						16
+					]
+				},
+				{
+					"build" : "core/deps/Vulkan-Headers",
+					"jsonFile" : "directory-core.deps.Vulkan-Headers-Debug-7b97ebd72617f2333308.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 13,
+					"source" : "core/deps/Vulkan-Headers"
+				},
+				{
+					"build" : "core/deps/VulkanMemoryAllocator",
+					"jsonFile" : "directory-core.deps.VulkanMemoryAllocator-Debug-21b1c6510db7a0d0d0c8.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 14,
+					"source" : "core/deps/VulkanMemoryAllocator"
+				},
+				{
+					"build" : "core/deps/xbyak",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-core.deps.xbyak-Debug-b81da14a05889c5b454d.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 15,
+					"source" : "core/deps/xbyak"
+				},
+				{
+					"build" : "core/deps/Spout",
+					"childIndexes" : 
+					[
+						25,
+						26
+					],
+					"jsonFile" : "directory-core.deps.Spout-Debug-c4a7b4ecbb86c69d9053.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 16,
+					"source" : "core/deps/Spout"
+				},
+				{
+					"build" : "core/deps/Spout/SPOUTSDK/SpoutGL",
+					"jsonFile" : "directory-core.deps.Spout.SPOUTSDK.SpoutGL-Debug-ecc531a2a40cf9fdad68.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 24,
+					"projectIndex" : 16,
+					"source" : "core/deps/Spout/SPOUTSDK/SpoutGL",
+					"targetIndexes" : 
+					[
+						7,
+						10
+					]
+				},
+				{
+					"build" : "core/deps/Spout/SPOUTSDK/SpoutDirectX/SpoutDX",
+					"jsonFile" : "directory-core.deps.Spout.SPOUTSDK.SpoutDirectX.SpoutDX-Debug-b33162ec36d9d372c9b7.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 24,
+					"projectIndex" : 16,
+					"source" : "core/deps/Spout/SPOUTSDK/SpoutDirectX/SpoutDX",
+					"targetIndexes" : 
+					[
+						8,
+						9
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "flycast",
+					"targetIndexes" : 
+					[
+						17,
+						18,
+						19
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "xxHash",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						28
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2,
+						3
+					],
+					"name" : "glm",
+					"parentIndex" : 0
+				},
+				{
+					"directoryIndexes" : 
+					[
+						4,
+						5,
+						6,
+						7,
+						8
+					],
+					"name" : "glslang",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						6,
+						20,
+						21
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						9
+					],
+					"name" : "SDL2",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						4,
+						5,
+						26,
+						27
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						10
+					],
+					"name" : "zlib",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						30,
+						31
+					]
+				},
+				{
+					"childIndexes" : 
+					[
+						7
+					],
+					"directoryIndexes" : 
+					[
+						11
+					],
+					"name" : "zstd",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						13
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						12
+					],
+					"name" : "libzstd",
+					"parentIndex" : 6,
+					"targetIndexes" : 
+					[
+						23
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						13,
+						14,
+						15
+					],
+					"name" : "chdr",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						11,
+						12,
+						24
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						16
+					],
+					"name" : "nowide",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						25
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						17
+					],
+					"name" : "miniupnpc",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						22
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						18,
+						19
+					],
+					"name" : "libzip",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						14,
+						15,
+						29
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						20
+					],
+					"name" : "libelf",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						16
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						21
+					],
+					"name" : "VULKAN_HEADERS",
+					"parentIndex" : 0
+				},
+				{
+					"directoryIndexes" : 
+					[
+						22
+					],
+					"name" : "VMA",
+					"parentIndex" : 0
+				},
+				{
+					"directoryIndexes" : 
+					[
+						23
+					],
+					"name" : "xbyak",
+					"parentIndex" : 0
+				},
+				{
+					"directoryIndexes" : 
+					[
+						24,
+						25,
+						26
+					],
+					"name" : "Spout",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						7,
+						8,
+						9,
+						10
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 5,
+					"id" : "GenericCodeGen::@799172384000f08368bf",
+					"jsonFile" : "target-GenericCodeGen-Debug-63749629bcfd4d1007a7.json",
+					"name" : "GenericCodeGen",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "MachineIndependent::@799172384000f08368bf",
+					"jsonFile" : "target-MachineIndependent-Debug-1fd1319bcf6535f209d5.json",
+					"name" : "MachineIndependent",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 7,
+					"id" : "OGLCompiler::@debb107a65c9d0c54894",
+					"jsonFile" : "target-OGLCompiler-Debug-4c3994f8ba19912af8c0.json",
+					"name" : "OGLCompiler",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "OSDependent::@72777b59ff51119329e8",
+					"jsonFile" : "target-OSDependent-Debug-493a05cb1deca924a92f.json",
+					"name" : "OSDependent",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 9,
+					"id" : "SDL2-static::@852767d7983b716f09d9",
+					"jsonFile" : "target-SDL2-static-Debug-1f851a523436c79a18fb.json",
+					"name" : "SDL2-static",
+					"projectIndex" : 4
+				},
+				{
+					"directoryIndex" : 9,
+					"id" : "SDL2main::@852767d7983b716f09d9",
+					"jsonFile" : "target-SDL2main-Debug-fb610a2b7d2b6133705b.json",
+					"name" : "SDL2main",
+					"projectIndex" : 4
+				},
+				{
+					"directoryIndex" : 8,
+					"id" : "SPIRV::@4f560e8c017eab301487",
+					"jsonFile" : "target-SPIRV-Debug-8859b9eda3a21d73abc9.json",
+					"name" : "SPIRV",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 25,
+					"id" : "Spout::@a49a67012bfcc04142a2",
+					"jsonFile" : "target-Spout-Debug-f52246bd86726cb16a4f.json",
+					"name" : "Spout",
+					"projectIndex" : 16
+				},
+				{
+					"directoryIndex" : 26,
+					"id" : "SpoutDX::@af7574dc8f9556fb4884",
+					"jsonFile" : "target-SpoutDX-Debug-9be4f1731c4f67e46909.json",
+					"name" : "SpoutDX",
+					"projectIndex" : 16
+				},
+				{
+					"directoryIndex" : 26,
+					"id" : "SpoutDX_static::@af7574dc8f9556fb4884",
+					"jsonFile" : "target-SpoutDX_static-Debug-4a2abeb8d4928a918c5b.json",
+					"name" : "SpoutDX_static",
+					"projectIndex" : 16
+				},
+				{
+					"directoryIndex" : 25,
+					"id" : "Spout_static::@a49a67012bfcc04142a2",
+					"jsonFile" : "target-Spout_static-Debug-ca2cde1863dcc945687c.json",
+					"name" : "Spout_static",
+					"projectIndex" : 16
+				},
+				{
+					"directoryIndex" : 15,
+					"id" : "chdr-benchmark::@a82595652001ac019fe8",
+					"jsonFile" : "target-chdr-benchmark-Debug-8d1a3b954b817dfdb597.json",
+					"name" : "chdr-benchmark",
+					"projectIndex" : 8
+				},
+				{
+					"directoryIndex" : 13,
+					"id" : "chdr-static::@097fe2da70f23c9f40aa",
+					"jsonFile" : "target-chdr-static-Debug-94fc381bce26df442e58.json",
+					"name" : "chdr-static",
+					"projectIndex" : 8
+				},
+				{
+					"directoryIndex" : 11,
+					"id" : "clean-all::@207c36bf23e5c5f38d90",
+					"jsonFile" : "target-clean-all-Debug-706c15ef840ada85f7a0.json",
+					"name" : "clean-all",
+					"projectIndex" : 6
+				},
+				{
+					"directoryIndex" : 18,
+					"id" : "dist::@29857bb587c6a9830480",
+					"jsonFile" : "target-dist-Debug-d36d692ec2438233129c.json",
+					"name" : "dist",
+					"projectIndex" : 11
+				},
+				{
+					"directoryIndex" : 18,
+					"id" : "distcheck::@29857bb587c6a9830480",
+					"jsonFile" : "target-distcheck-Debug-d9969401746cff4e0a3c.json",
+					"name" : "distcheck",
+					"projectIndex" : 11
+				},
+				{
+					"directoryIndex" : 20,
+					"id" : "elf::@20f081c3fa2a55f0cb4f",
+					"jsonFile" : "target-elf-Debug-1cce65e2a74eea3af909.json",
+					"name" : "elf",
+					"projectIndex" : 12
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "flycast::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-flycast-Debug-8144d3f293445afe7df8.json",
+					"name" : "flycast",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "flycast-resources::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-flycast-resources-Debug-04c85504b643be16f284.json",
+					"name" : "flycast-resources",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "glad::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-glad-Debug-21003ae6df0ad0ac600c.json",
+					"name" : "glad",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "glslang::@799172384000f08368bf",
+					"jsonFile" : "target-glslang-Debug-d56af583b946d8c48951.json",
+					"name" : "glslang",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "glslang-default-resource-limits::@799172384000f08368bf",
+					"jsonFile" : "target-glslang-default-resource-limits-Debug-8fdc959c00dd2d54bd1a.json",
+					"name" : "glslang-default-resource-limits",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 17,
+					"id" : "libminiupnpc-static::@1aba244f1cad3f501af6",
+					"jsonFile" : "target-libminiupnpc-static-Debug-c65082cd8852f75d981b.json",
+					"name" : "libminiupnpc-static",
+					"projectIndex" : 10
+				},
+				{
+					"directoryIndex" : 12,
+					"id" : "libzstd_static::@bc2f84b002df16dd6ef6",
+					"jsonFile" : "target-libzstd_static-Debug-9331534b86d8b895b221.json",
+					"name" : "libzstd_static",
+					"projectIndex" : 7
+				},
+				{
+					"directoryIndex" : 14,
+					"id" : "lzma::@4c1f938245bd8be91c88",
+					"jsonFile" : "target-lzma-Debug-5f7b73af095ed036b15d.json",
+					"name" : "lzma",
+					"projectIndex" : 8
+				},
+				{
+					"directoryIndex" : 16,
+					"id" : "nowide::@5d0c3cb3ecfe95951d3b",
+					"jsonFile" : "target-nowide-Debug-a2010a7c8bb089b2545c.json",
+					"name" : "nowide",
+					"projectIndex" : 9
+				},
+				{
+					"directoryIndex" : 9,
+					"id" : "sdl_headers_copy::@852767d7983b716f09d9",
+					"jsonFile" : "target-sdl_headers_copy-Debug-cceae97764a9e1052311.json",
+					"name" : "sdl_headers_copy",
+					"projectIndex" : 4
+				},
+				{
+					"directoryIndex" : 9,
+					"id" : "uninstall::@852767d7983b716f09d9",
+					"jsonFile" : "target-uninstall-Debug-02033c86297194810312.json",
+					"name" : "uninstall",
+					"projectIndex" : 4
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "xxhash::@7e3c8629393d425c1b0c",
+					"jsonFile" : "target-xxhash-Debug-8f1f444c271d6ebc1c8a.json",
+					"name" : "xxhash",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 19,
+					"id" : "zip::@3e5cbb5dcb966407ec41",
+					"jsonFile" : "target-zip-Debug-de8cb31061a23307dd5e.json",
+					"name" : "zip",
+					"projectIndex" : 11
+				},
+				{
+					"directoryIndex" : 10,
+					"id" : "zlib::@5b10dfcd7a410a79a711",
+					"jsonFile" : "target-zlib-Debug-353ef87ff8fda903a149.json",
+					"name" : "zlib",
+					"projectIndex" : 5
+				},
+				{
+					"directoryIndex" : 10,
+					"id" : "zlibstatic::@5b10dfcd7a410a79a711",
+					"jsonFile" : "target-zlibstatic-Debug-e9f79780977b9b743b02.json",
+					"name" : "zlibstatic",
+					"projectIndex" : 5
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/antho/flycast/flycast-fresh/build-clang",
+		"source" : "C:/Users/antho/flycast/flycast-fresh"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 8
+	}
+}

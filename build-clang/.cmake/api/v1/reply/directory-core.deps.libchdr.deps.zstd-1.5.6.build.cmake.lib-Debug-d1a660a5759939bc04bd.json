@@ -1,0 +1,79 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"core/deps/libchdr/deps/zstd-1.5.6/build/cmake/lib/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 230,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 233,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 235,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib/pkgconfig",
+			"paths" : 
+			[
+				"build-clang/core/deps/libchdr/deps/zstd-1.5.6/build/cmake/lib/libzstd.pc"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				"core/deps/libchdr/deps/zstd-1.5.6/build/cmake/../../lib/zdict.h",
+				"core/deps/libchdr/deps/zstd-1.5.6/build/cmake/../../lib/zstd.h",
+				"core/deps/libchdr/deps/zstd-1.5.6/build/cmake/../../lib/zstd_errors.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"core/deps/libchdr/deps/zstd-1.5.6/build/cmake/lib/zstd_static.lib"
+			],
+			"targetId" : "libzstd_static::@bc2f84b002df16dd6ef6",
+			"targetIndex" : 23,
+			"type" : "target"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "core/deps/libchdr/deps/zstd-1.5.6/build/cmake/lib",
+		"source" : "core/deps/libchdr/deps/zstd-1.5.6/build/cmake/lib"
+	}
+}

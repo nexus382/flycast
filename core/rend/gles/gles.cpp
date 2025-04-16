@@ -2,6 +2,7 @@
 #include "gles.h"
 #include "quad.h"
 #include "hw/pvr/ta.h"
+#include "hw/pvr/tr.h"
 #ifndef LIBRETRO
 #include "ui/gui.h"
 #else
@@ -12,6 +13,14 @@
 #include "wsi/gl_context.h"
 #include "emulator.h"
 #include "naomi2.h"
+#include "oslib/directory.h"
+#include "oslib/storage.h"
+#include "cfg/option.h"
+#include "rend/gles/naomi2.h"
+#include "hw/pvr/elan.h"
+#include "hw/mem/mem_watch.h"
+#include "hw/mem/_vmem.h"
+#include "rickroll.h"
 
 #ifdef TEST_AUTOMATION
 #include "cfg/cfg.h"
@@ -1398,4 +1407,40 @@ void OpenGLRenderer::renderVideoRouting()
 Renderer* rend_GLES2()
 {
 	return new OpenGLRenderer();
+}
+
+void OpenGLRenderer::RenderFramebuffer()
+{
+#ifdef RICK_ROLL_EASTER_EGG
+    // If in Rick Roll mode, render Rick Roll
+    if (rickroll::shouldRender())
+    {
+        rickroll::render();
+        return;
+    }
+#endif
+
+    renderFramebuffer();
+
+#ifdef LIBRETRO
+    renderVideoRouting();
+#endif
+}
+
+void OpenGLRenderer::renderFrame()
+{
+#ifdef RICK_ROLL_EASTER_EGG
+    // If in Rick Roll mode, render Rick Roll
+    if (rickroll::shouldRender())
+    {
+        rickroll::render();
+        return;
+    }
+#endif
+
+    renderFramebuffer();
+
+#ifdef LIBRETRO
+    renderVideoRouting();
+#endif
 }

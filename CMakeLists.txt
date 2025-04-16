@@ -1243,7 +1243,9 @@ target_sources(${PROJECT_NAME} PRIVATE
 		core/oslib/unwind_info.h
 		core/oslib/virtmem.h
 		core/lua/lua.cpp
-		core/lua/lua.h)
+		core/lua/lua.h
+		core/rickroll.cpp
+		core/rickroll.h)
 
 if (ENABLE_DC_PROFILER)
 	target_sources(${PROJECT_NAME} PRIVATE
@@ -1990,3 +1992,13 @@ if(${CMAKE_GENERATOR} MATCHES "^Xcode.*|^Visual Studio.*")
 	file(GLOB_RECURSE SRC_FILES *.h *.cpp *.c *.cc *.mm)
 	source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SRC_FILES})
 endif()
+
+if(NOT USE_VULKAN)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE
+		FEAT_NO_RVL
+		FEAT_NO_CL
+		FEAT_NO_VULKAN)
+endif()
+
+# Add Rick Roll Easter Egg support
+target_compile_definitions(${PROJECT_NAME} PRIVATE RICK_ROLL_EASTER_EGG=1)

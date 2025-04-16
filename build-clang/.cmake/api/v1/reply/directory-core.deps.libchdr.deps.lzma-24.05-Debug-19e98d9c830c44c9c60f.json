@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "core/deps/libchdr/deps/lzma-24.05",
+		"source" : "core/deps/libchdr/deps/lzma-24.05"
+	}
+}

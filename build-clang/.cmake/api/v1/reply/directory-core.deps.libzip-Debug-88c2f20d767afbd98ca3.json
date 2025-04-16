@@ -1,0 +1,45 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"core/deps/libzip/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 482,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/libzip/modules",
+			"paths" : 
+			[
+				"core/deps/libzip/cmake/FindNettle.cmake",
+				"core/deps/libzip/cmake/Findzstd.cmake",
+				"core/deps/libzip/cmake/FindMbedTLS.cmake"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "core/deps/libzip",
+		"source" : "core/deps/libzip"
+	}
+}

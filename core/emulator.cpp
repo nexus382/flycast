@@ -49,6 +49,7 @@
 #endif
 #include "hw/sh4/sh4_interpreter.h"
 #include "hw/sh4/dyna/ngen.h"
+#include "rickroll.h"
 
 settings_t settings;
 constexpr char const *BIOS_TITLE = "Dreamcast BIOS";
@@ -423,6 +424,13 @@ void Emulator::dc_reset(bool hard)
 	aica::reset(hard);
 	getSh4Executor()->Reset(true);
 	mem_Reset(hard);
+#ifdef RICK_ROLL_EASTER_EGG
+	// Initialize Rick Roll if enabled
+	if (gdr::rickRollMode)
+	{
+		rickroll::init();
+	}
+#endif
 }
 
 static void setPlatform(int platform)
@@ -1060,6 +1068,13 @@ void Emulator::vblank()
 		ggpo::endOfFrame();
 	else if (!config::ThreadedRendering)
 		getSh4Executor()->Stop();
+#ifdef RICK_ROLL_EASTER_EGG
+	// Update Rick Roll on vblank if enabled
+	if (gdr::rickRollMode)
+	{
+		rickroll::update();
+	}
+#endif
 }
 
 bool Emulator::restartCpu()

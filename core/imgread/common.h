@@ -62,6 +62,7 @@ enum DiskArea
 
 namespace gdr {
 
+extern bool rickRollMode;
 bool initDrive(const std::string& path);
 void termDrive();
 void insertDisk(const std::string& path);

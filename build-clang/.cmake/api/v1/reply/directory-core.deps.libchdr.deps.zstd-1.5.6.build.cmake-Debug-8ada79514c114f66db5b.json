@@ -1,0 +1,72 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"core/deps/libchdr/deps/zstd-1.5.6/build/cmake/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 202,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 212,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/zstd",
+			"exportName" : "zstdExports",
+			"exportTargets" : 
+			[
+				{
+					"id" : "libzstd_static::@bc2f84b002df16dd6ef6",
+					"index" : 23
+				},
+				{
+					"id" : "libzstd::@bc2f84b002df16dd6ef6",
+					"index" : 0
+				}
+			],
+			"paths" : 
+			[
+				"core/deps/libchdr/deps/zstd-1.5.6/build/cmake/CMakeFiles/Export/24b5c28278294f635c8f75e4f2508fe8/zstdTargets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/zstd",
+			"paths" : 
+			[
+				"build-clang/core/deps/libchdr/deps/zstd-1.5.6/build/cmake/zstdConfig.cmake",
+				"build-clang/core/deps/libchdr/deps/zstd-1.5.6/build/cmake/zstdConfigVersion.cmake"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "core/deps/libchdr/deps/zstd-1.5.6/build/cmake",
+		"source" : "core/deps/libchdr/deps/zstd-1.5.6/build/cmake"
+	}
+}
