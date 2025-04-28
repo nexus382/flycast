@@ -36,6 +36,38 @@ GameBoxart Boxart::getBoxart(const GameMedia& media)
 	return boxart;
 }
 
+bool Boxart::checkCustomBoxart(GameBoxart& boxart)
+{
+	std::string customDir = getCustomBoxartDirectory();
+	
+	if (!file_exists(customDir))
+		make_directory(customDir);
+	
+	std::string baseName = get_file_basename(boxart.fileName);
+	
+	// Check for common image formats
+	const char* extensions[] = { ".png", ".jpg", ".jpeg", ".webp" };
+	
+	for (const char* ext : extensions)
+	{
+		// Make sure we use the correct path separator for the OS
+		std::string customPath = customDir;
+		if (!customPath.empty() && customPath.back() != '/' && customPath.back() != '\\')
+			customPath += '/';
+			
+		customPath += baseName + ext;
+		
+		if (file_exists(customPath))
+		{
+			boxart.setBoxartPath(customPath);
+			boxart.parsed = true;
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 GameBoxart Boxart::getBoxartAndLoad(const GameMedia& media)
 {
 	loadDatabase();
@@ -46,6 +78,15 @@ GameBoxart Boxart::getBoxartAndLoad(const GameMedia& media)
 		if (it != games.end())
 		{
 			boxart = it->second;
+			
+			// Check for custom boxart first
+			if (checkCustomBoxart(boxart))
+			{
+				games[media.fileName] = boxart;
+				databaseDirty = true;
+				return boxart;
+			}
+			
 			if (config::FetchBoxart && !boxart.busy && !boxart.scraped)
 			{
 				boxart.busy = it->second.busy = true;
@@ -59,6 +100,15 @@ GameBoxart Boxart::getBoxartAndLoad(const GameMedia& media)
 			boxart.gamePath = media.path;
 			boxart.name = media.name;
 			boxart.searchName = media.gameName;	// for arcade games
+			
+			// Check for custom boxart
+			if (checkCustomBoxart(boxart))
+			{
+				games[boxart.fileName] = boxart;
+				databaseDirty = true;
+				return boxart;
+			}
+			
 			boxart.busy = true;
 			games[boxart.fileName] = boxart;
 			toFetch.push_back(boxart);
@@ -213,6 +263,11 @@ void Boxart::loadDatabase()
 	} catch (const json::exception& e) {
 		WARN_LOG(COMMON, "Corrupted database file: %s", e.what());
 	}
+	
+	// Create custom boxart directory if it doesn't exist
+	std::string customDir = getCustomBoxartDirectory();
+	if (!file_exists(customDir))
+		make_directory(customDir);
 }
 
 void Boxart::term()

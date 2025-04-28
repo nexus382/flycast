@@ -35,6 +35,14 @@ public:
 	GameBoxart getBoxartAndLoad(const GameMedia& media);
 	GameBoxart getBoxart(const GameMedia& media);
 	void term();
+	std::string getCustomBoxartPath() const {
+		std::string path = get_writable_data_path("/custom_boxart/");
+		// Convert backslashes to forward slashes for display consistency
+		for (char& c : path)
+			if (c == '\\')
+				c = '/';
+		return path;
+	}
 
 private:
 	void loadDatabase();
@@ -42,6 +50,10 @@ private:
 	std::string getSaveDirectory() const {
 		return get_writable_data_path("/boxart/");
 	}
+	std::string getCustomBoxartDirectory() const {
+		return get_writable_data_path("/custom_boxart/");
+	}
+	bool checkCustomBoxart(GameBoxart& boxart);
 	void fetchBoxart();
 
 	std::unordered_map<std::string, GameBoxart> games;
