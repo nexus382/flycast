@@ -92,8 +92,12 @@ struct GameBoxart
 	}
 
 	void setBoxartPath(const std::string& path) {
-		if (!boxartPath.empty())
-			nowide::remove(boxartPath.c_str());
+		if (!boxartPath.empty() && boxartPath != path) {
+			// Don't delete files in the custom_boxart directory
+			if (boxartPath.find("/custom_boxart/") == std::string::npos && 
+				boxartPath.find("\\custom_boxart\\") == std::string::npos)
+				nowide::remove(boxartPath.c_str());
+		}
 		boxartPath = path;
 	}
 };
