@@ -1878,13 +1878,6 @@ static void gui_settings_general()
 		ImGui::TextWrapped("Supported formats: PNG, JPG, JPEG, WEBP");
 		ImGui::TextWrapped("Example: For 'Sonic Adventure.gdi', use 'Sonic Adventure.png'");
 		
-		if (ImGui::Button("Refresh Custom Boxart"))
-		{
-			// Reset boxart database to force reload
-			boxart.term();
-			scanner.refresh();
-		}
-		
 		ImGui::TreePop();
 	}
 	
