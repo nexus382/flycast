@@ -197,7 +197,7 @@ std::string getTextureLoadPath(const std::string& gameId)
 std::string getCustomBoxartPath()
 {
 #ifdef __ANDROID__
-	extern std::string getAndroidContentDirectory();
+	#include "../../shell/android-studio/flycast/src/main/jni/src/android_content.h"
 	std::string androidPath = getAndroidContentDirectory();
 	if (!androidPath.empty())
 	{

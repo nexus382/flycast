@@ -12,6 +12,7 @@
 #include "cfg/option.h"
 #include "stdclass.h"
 #include "oslib/oslib.h"
+#include "ui/boxart/boxart.h"
 #ifdef USE_BREAKPAD
 #include "client/linux/handler/exception_handler.h"
 #endif
@@ -533,3 +534,6 @@ std::string getAndroidContentDirectory()
 {
     return android_content_directory;
 }
+
+// Access to the boxart variable from gui.cpp
+extern Boxart boxart;
