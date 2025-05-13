@@ -21,6 +21,7 @@
 #include "oslib/storage.h"
 #include "jni_util.h"
 #include <jni.h>
+#include "ui/boxart/boxart.h"  // Include for Boxart class definition
 
 namespace hostfs
 {
@@ -286,4 +287,14 @@ extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_AndroidStorage_reloa
 		// Make sure the renderer type doesn't change mid-flight
 		config::RendererType = render;
 	}
+}
+
+extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_AndroidStorage_reloadBoxartDatabase(JNIEnv *env)
+{
+	// Force reload of boxart database to pick up custom boxart 
+	// that may have been imported
+	extern class Boxart boxart;
+	// Call term() to clean up resources then let getBoxart/getBoxartAndLoad reload the database
+	boxart.term();
+	INFO_LOG(COMMON, "Boxart database will be reloaded on next access");
 }
