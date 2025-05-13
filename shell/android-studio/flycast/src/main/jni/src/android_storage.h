@@ -294,7 +294,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_AndroidStorage_reloa
 	// Force reload of boxart database to pick up custom boxart 
 	// that may have been imported
 	extern class Boxart boxart;
-	// Clear the loaded flag to force reloading the database
-	boxart = Boxart();
-	INFO_LOG(COMMON, "Boxart database reloaded");
+	// Call term() to clean up resources then let getBoxart/getBoxartAndLoad reload the database
+	boxart.term();
+	INFO_LOG(COMMON, "Boxart database will be reloaded on next access");
 }
