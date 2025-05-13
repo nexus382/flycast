@@ -188,8 +188,18 @@ public abstract class BaseGLActivity extends Activity implements ActivityCompat.
         pathList.addAll(FileBrowser.getExternalMounts());
         pathList.add(getApplicationContext().getFilesDir().getAbsolutePath());
         File dir= getApplicationContext().getExternalFilesDir(null);
-        if (dir != null)
+        if (dir != null) {
             pathList.add(dir.getAbsolutePath());
+            // Set content directory for custom boxart
+            storage.setContentDirectory(dir.getAbsolutePath());
+            
+            // Create custom-boxart directory if it doesn't exist
+            File customBoxartDir = new File(dir, "custom-boxart");
+            if (!customBoxartDir.exists()) {
+                customBoxartDir.mkdirs();
+                Log.i("flycast", "Created custom boxart directory: " + customBoxartDir.getAbsolutePath());
+            }
+        }
         Log.i("flycast", "Storage dirs: " + pathList);
         if (storage != null)
             storage.setStorageDirectories(pathList);

@@ -508,3 +508,22 @@ void registerCrash(const char *directory, const char *path) {}
 void uploadCrashes(const std::string& directory) {}
 
 #endif
+
+std::string getCustomBoxartPath()
+{
+#ifdef __ANDROID__
+	extern std::string getAndroidContentDirectory();
+	std::string androidPath = getAndroidContentDirectory();
+	if (!androidPath.empty())
+	{
+		std::string contentPath = androidPath + "/custom-boxart/";
+		if (!file_exists(contentPath))
+			make_directory(contentPath);
+		return contentPath;
+	}
+#endif
+	std::string path = get_writable_data_path("custom-boxart/");
+	if (!file_exists(path))
+		make_directory(path);
+	return path;
+}

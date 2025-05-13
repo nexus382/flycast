@@ -69,6 +69,7 @@ public class AndroidStorage {
     public native void init();
     public native void addStorageCallback(String path);
     public native void reloadConfig();
+    public native void setContentDirectory(String path);
 
     public void onAddStorageResult(Intent data)
     {
