@@ -22,6 +22,7 @@
 #include "oslib/oslib.h"
 #include "cfg/option.h"
 #include <chrono>
+#include "nowide/cstdlib.hpp"
 
 GameBoxart Boxart::getBoxart(const GameMedia& media)
 {
@@ -38,15 +39,15 @@ GameBoxart Boxart::getBoxart(const GameMedia& media)
 
 bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 {
-	std::string customDir = getCustomBoxartDirectory();
-	
-	if (!file_exists(customDir))
-		make_directory(customDir);
-	
 	std::string baseName = get_file_basename(boxart.fileName);
 	
 	// Check for common image formats
 	const char* extensions[] = { ".png", ".jpg", ".jpeg", ".webp" };
+	
+	// First check in the custom boxart directory (from content directory on Android)
+	std::string customDir = getCustomBoxartDirectory();
+	if (!file_exists(customDir))
+		make_directory(customDir);
 	
 	for (const char* ext : extensions)
 	{
@@ -64,6 +65,45 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 			return true;
 		}
 	}
+	
+	// Also check in the FLYCAST_HOME paths (for Android content directory)
+#ifdef __ANDROID__
+	const char *home = nowide::getenv("FLYCAST_HOME");
+	while (home != nullptr)
+	{
+		const char *pcolon = strchr(home, ':');
+		std::string homePath;
+		if (pcolon != nullptr)
+		{
+			homePath = std::string(home, pcolon - home);
+			home = pcolon + 1;
+		}
+		else
+		{
+			homePath = home;
+			home = nullptr;
+		}
+		
+		// Check in custom-boxart subdirectory of each FLYCAST_HOME path
+		for (const char* ext : extensions)
+		{
+			std::string contentPath = homePath + "/custom-boxart/";
+			if (!file_exists(contentPath))
+				contentPath = homePath + "/Flycast/custom-boxart/";
+				
+			if (file_exists(contentPath))
+			{
+				contentPath += baseName + ext;
+				if (file_exists(contentPath))
+				{
+					boxart.setBoxartPath(contentPath);
+					boxart.parsed = true;
+					return true;
+				}
+			}
+		}
+	}
+#endif
 	
 	return false;
 }
