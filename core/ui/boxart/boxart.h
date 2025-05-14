@@ -19,6 +19,7 @@
 #pragma once
 #include "scraper.h"
 #include "stdclass.h"
+#include "oslib/oslib.h"
 
 #include <future>
 #include <memory>
@@ -36,7 +37,7 @@ public:
 	GameBoxart getBoxart(const GameMedia& media);
 	void term();
 	std::string getCustomBoxartPath() const {
-		std::string path = get_writable_data_path("/custom_boxart/");
+		std::string path = get_writable_data_path("custom-boxart/");
 		// Convert backslashes to forward slashes for display consistency
 		for (char& c : path)
 			if (c == '\\')
@@ -48,10 +49,10 @@ private:
 	void loadDatabase();
 	void saveDatabase();
 	std::string getSaveDirectory() const {
-		return get_writable_data_path("/boxart/");
+		return get_writable_data_path("boxart/");
 	}
 	std::string getCustomBoxartDirectory() const {
-		return get_writable_data_path("/custom_boxart/");
+		return hostfs::getCustomBoxartPath();
 	}
 	bool checkCustomBoxart(GameBoxart& boxart);
 	void fetchBoxart();

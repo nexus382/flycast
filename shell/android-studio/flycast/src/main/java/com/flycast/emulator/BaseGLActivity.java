@@ -196,8 +196,21 @@ public abstract class BaseGLActivity extends Activity implements ActivityCompat.
             // Create custom-boxart directory if it doesn't exist
             File customBoxartDir = new File(dir, "custom-boxart");
             if (!customBoxartDir.exists()) {
-                customBoxartDir.mkdirs();
-                Log.i("flycast", "Created custom boxart directory: " + customBoxartDir.getAbsolutePath());
+                boolean success = customBoxartDir.mkdirs();
+                Log.i("flycast", "Created custom boxart directory: " + customBoxartDir.getAbsolutePath() + " success: " + success);
+            } else {
+                Log.i("flycast", "Custom boxart directory exists: " + customBoxartDir.getAbsolutePath());
+            }
+            
+            // Also create Flycast/custom-boxart directory in case that's being looked for
+            File flycastDir = new File(dir, "Flycast");
+            if (!flycastDir.exists()) {
+                flycastDir.mkdirs();
+            }
+            File flycastCustomBoxartDir = new File(flycastDir, "custom-boxart");
+            if (!flycastCustomBoxartDir.exists()) {
+                boolean success = flycastCustomBoxartDir.mkdirs();
+                Log.i("flycast", "Created Flycast custom boxart directory: " + flycastCustomBoxartDir.getAbsolutePath() + " success: " + success);
             }
         }
         Log.i("flycast", "Storage dirs: " + pathList);
