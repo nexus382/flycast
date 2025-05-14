@@ -52,7 +52,7 @@ private:
 		return get_writable_data_path("boxart/");
 	}
 	std::string getCustomBoxartDirectory() const {
-		return hostfs::getCustomBoxartPath();
+		return getCustomBoxartPath();
 	}
 	bool checkCustomBoxart(GameBoxart& boxart);
 	void fetchBoxart();
