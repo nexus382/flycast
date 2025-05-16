@@ -71,4 +71,10 @@ private:
 };
 
 // Declare an extern boxart variable that can be accessed from other files like Android.cpp
+#ifdef __cplusplus
+extern "C++" {
+#endif
 extern Boxart boxart;
+#ifdef __cplusplus
+}
+#endif

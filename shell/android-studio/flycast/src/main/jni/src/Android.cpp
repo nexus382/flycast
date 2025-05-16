@@ -530,7 +530,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_AndroidStorage_setCo
     INFO_LOG(COMMON, "Setting Android content directory: %s", android_content_directory.c_str());
     
     // Force reload of boxart database to pick up custom boxart
-    extern Boxart boxart; // Fixed linkage issue by removing `class`
+    extern "C++" Boxart boxart;
     boxart.term();
     INFO_LOG(COMMON, "Boxart database will be reloaded on next access");
 }
