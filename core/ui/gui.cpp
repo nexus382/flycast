@@ -98,7 +98,6 @@ void error_popup();
 
 static GameScanner scanner;
 static BackgroundGameLoader gameLoader;
-Boxart boxart;
 static Chat chat;
 static std::recursive_mutex guiMutex;
 using LockGuard = std::lock_guard<std::recursive_mutex>;
@@ -647,7 +646,7 @@ static void gui_display_commands()
 		GameMedia game;
 		game.path = settings.content.path;
 		game.fileName = settings.content.fileName;
-		GameBoxart art = boxart.getBoxart(game);
+		GameBoxart art = Boxart::get().getBoxart(game);
 		ImguiFileTexture tex(art.boxartPath);
 		// TODO use placeholder image if not available
 		tex.draw(ScaledVec2(100, 100));
@@ -1858,29 +1857,29 @@ static void gui_settings_general()
 			"Display game cover art in the game list.");
 	OptionCheckbox("Fetch Box Art", config::FetchBoxart,
 			"Fetch cover images from TheGamesDB.net.");
-	
+
 	if (ImGui::TreeNode("Custom Boxart"))
 	{
 		std::string customDir = get_writable_data_path("/custom_boxart/");
 		if (!file_exists(customDir))
 			make_directory(customDir);
-		
+
 		// Convert backslashes to forward slashes for display consistency
 		std::string displayPath = customDir;
 		for (char& c : displayPath)
 			if (c == '\\')
 				c = '/';
-		
+
 		ImGui::TextWrapped("To use custom boxart, place image files in the following folder:");
 		ImGui::TextWrapped("%s", displayPath.c_str());
 		ImGui::Separator();
 		ImGui::TextWrapped("Name your image files using the game filename (without extension).");
 		ImGui::TextWrapped("Supported formats: PNG, JPG, JPEG, WEBP");
 		ImGui::TextWrapped("Example: For 'Sonic Adventure.gdi', use 'Sonic Adventure.png'");
-		
+
 		ImGui::TreePop();
 	}
-	
+
 	if (OptionSlider("UI Scaling", config::UIScaling, 50, 200, "Adjust the size of UI elements and fonts.", "%d%%"))
 		uiUserScaleUpdated = true;
 	if (uiUserScaleUpdated)
@@ -3380,7 +3379,7 @@ static void gui_display_content()
 				GameBoxart art;
 				if (config::BoxartDisplayMode && !game.device)
 				{
-					art = boxart.getBoxartAndLoad(game);
+					art = Boxart::get().getBoxartAndLoad(game);
 					gameName = art.name;
 				}
 				if (filter.PassFilter(gameName.c_str()))
@@ -3407,7 +3406,7 @@ static void gui_display_content()
 					if (pressed)
 					{
 						if (!config::BoxartDisplayMode)
-							art = boxart.getBoxart(game);
+							art = Boxart::get().getBoxart(game);
 						settings.content.title = art.name;
 						if (settings.content.title.empty() || settings.content.title == game.fileName)
 							settings.content.title = get_file_basename(game.fileName);
@@ -3528,7 +3527,7 @@ static void drawBoxartBackground()
 	GameMedia game;
 	game.path = settings.content.path;
 	game.fileName = settings.content.fileName;
-	GameBoxart art = boxart.getBoxart(game);
+	GameBoxart art = Boxart::get().getBoxart(game);
 	ImguiFileTexture tex(art.boxartPath);
 	ImDrawList *dl = ImGui::GetBackgroundDrawList();
 	tex.draw(dl, ImVec2(0, 0), ImVec2(settings.display.width, settings.display.height), 1.f);
@@ -3856,7 +3855,7 @@ void gui_term()
 	    EventManager::unlisten(Event::Resume, emuEventCallback);
 	    EventManager::unlisten(Event::Start, emuEventCallback);
 	    EventManager::unlisten(Event::Terminate, emuEventCallback);
-	    boxart.term();
+	    Boxart::get().term();
 	}
 }
 
@@ -3945,7 +3944,7 @@ std::string gui_getCurGameBoxartUrl()
 	GameMedia game;
 	game.fileName = settings.content.fileName;
 	game.path = settings.content.path;
-	GameBoxart art = boxart.getBoxart(game);
+	GameBoxart art = Boxart::get().getBoxart(game);
 	return art.boxartUrl;
 }
 

@@ -33,6 +33,9 @@ struct GameMedia;
 class Boxart
 {
 public:
+	//! @return the singleton boxart object
+	static Boxart& get();
+
 	GameBoxart getBoxartAndLoad(const GameMedia& media);
 	GameBoxart getBoxart(const GameMedia& media);
 	void term();
@@ -69,12 +72,3 @@ private:
 
 	static constexpr char const *DB_NAME = "flycast-gamedb.json";
 };
-
-// Declare an extern boxart variable that can be accessed from other files like Android.cpp
-#ifdef __cplusplus
-extern "C++" {
-#endif
-extern Boxart boxart;
-#ifdef __cplusplus
-}
-#endif
