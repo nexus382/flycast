@@ -98,7 +98,7 @@ void error_popup();
 
 static GameScanner scanner;
 static BackgroundGameLoader gameLoader;
-static Boxart boxart;
+Boxart boxart;
 static Chat chat;
 static std::recursive_mutex guiMutex;
 using LockGuard = std::lock_guard<std::recursive_mutex>;

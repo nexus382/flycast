@@ -12,6 +12,7 @@
 #include "cfg/option.h"
 #include "stdclass.h"
 #include "oslib/oslib.h"
+#include "ui/boxart/boxart.h"
 #ifdef USE_BREAKPAD
 #include "client/linux/handler/exception_handler.h"
 #endif
@@ -510,8 +511,8 @@ void dc_exit()
     if (g_jvm)
     {
         jni::JVMAttacher attacher;
-        if (g_activity != nullptr)
-        {
+	if (g_activity != nullptr)
+	{
             jni::env()->CallVoidMethod(g_activity, onGameStateChangeMid, false);
             jni::env()->DeleteGlobalRef(g_activity);
             g_activity = nullptr;

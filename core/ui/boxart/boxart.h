@@ -69,3 +69,6 @@ private:
 
 	static constexpr char const *DB_NAME = "flycast-gamedb.json";
 };
+
+// Declare an extern boxart variable that can be accessed from other files like Android.cpp
+extern Boxart boxart;
