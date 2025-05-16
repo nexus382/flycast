@@ -12,7 +12,7 @@
 #include "cfg/option.h"
 #include "stdclass.h"
 #include "oslib/oslib.h"
-#include "core/ui/boxart/boxart.h"
+// boxart.h is included by android_storage.h
 #ifdef USE_BREAKPAD
 #include "client/linux/handler/exception_handler.h"
 #endif

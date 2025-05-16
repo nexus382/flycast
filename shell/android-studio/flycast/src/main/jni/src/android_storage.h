@@ -21,7 +21,7 @@
 #include "oslib/storage.h"
 #include "jni_util.h"
 #include <jni.h>
-#include "ui/boxart/boxart.h"  // Include for Boxart class definition
+#include "core/ui/boxart/boxart.h"  // Include for Boxart class definition
 
 namespace hostfs
 {
