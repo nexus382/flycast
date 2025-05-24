@@ -20,6 +20,7 @@
 #include "gamesdb.h"
 #include "../game_scanner.h"
 #include "oslib/oslib.h"
+#include "oslib/storage.h"
 #include "cfg/option.h"
 #include <chrono>
 #include "nowide/cstdlib.hpp"
@@ -43,6 +44,22 @@ GameBoxart Boxart::getBoxart(const GameMedia& media)
 	return boxart;
 }
 
+// Function to find custom boxart in content directories (following same pattern as findNaomiBios)
+std::string findCustomBoxartInContentDirs(const std::string& baseName, const char* extension)
+{
+	for (const auto& path : config::ContentPath.get())
+	{
+		try {
+			std::string customBoxartDir = hostfs::storage().getSubPath(path, "custom-boxart");
+			std::string fullPath = hostfs::storage().getSubPath(customBoxartDir, baseName + extension);
+			if (hostfs::storage().exists(fullPath))
+				return fullPath;
+		} catch (const hostfs::StorageException& e) {
+		}
+	}
+	return "";
+}
+
 bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 {
 	std::string baseName = get_file_basename(boxart.fileName);
@@ -51,7 +68,7 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	// Check for common image formats
 	const char* extensions[] = { ".png", ".jpg", ".jpeg", ".webp" };
 
-	// First check in the custom boxart directory (from content directory on Android)
+	// First check in the custom boxart directory (DATA folder)
 	std::string customDir = getCustomBoxartDirectory();
 	DEBUG_LOG(COMMON, "Looking in custom boxart directory: %s", customDir.c_str());
 
@@ -74,6 +91,19 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 		{
 			NOTICE_LOG(COMMON, "Found custom boxart at: %s", customPath.c_str());
 			boxart.setBoxartPath(customPath);
+			boxart.parsed = true;
+			return true;
+		}
+	}
+
+	// Then check in content directories
+	for (const char* ext : extensions)
+	{
+		std::string contentPath = findCustomBoxartInContentDirs(baseName, ext);
+		if (!contentPath.empty())
+		{
+			NOTICE_LOG(COMMON, "Found custom boxart in content directory: %s", contentPath.c_str());
+			boxart.setBoxartPath(contentPath);
 			boxart.parsed = true;
 			return true;
 		}
