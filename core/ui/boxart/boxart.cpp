@@ -51,7 +51,7 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	// Check for common image formats
 	const char* extensions[] = { ".png", ".jpg", ".jpeg", ".webp" };
 
-	// First check in the custom boxart directory (from content directory on Android)
+	// First check in the custom boxart directory (includes content directory on Android)
 	std::string customDir = getCustomBoxartDirectory();
 	DEBUG_LOG(COMMON, "Looking in custom boxart directory: %s", customDir.c_str());
 
@@ -80,7 +80,7 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	}
 
 #ifdef __ANDROID__
-	// Check in user-selected content directories on Android
+	// Also check in user-selected content directories on Android
 	for (const auto& contentPath : config::ContentPath.get())
 	{
 		DEBUG_LOG(COMMON, "Checking user-selected content path: %s", contentPath.c_str());
@@ -99,60 +99,6 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 				boxart.setBoxartPath(fullPath);
 				boxart.parsed = true;
 				return true;
-			}
-		}
-	}
-#endif
-
-	// Also check in the FLYCAST_HOME paths (for Android content directory)
-#ifdef __ANDROID__
-	const char *home = nowide::getenv("FLYCAST_HOME");
-	if (home != nullptr)
-		DEBUG_LOG(COMMON, "Checking FLYCAST_HOME paths: %s", home);
-
-	while (home != nullptr)
-	{
-		const char *pcolon = strchr(home, ':');
-		std::string homePath;
-		if (pcolon != nullptr)
-		{
-			homePath = std::string(home, pcolon - home);
-			home = pcolon + 1;
-		}
-		else
-		{
-			homePath = home;
-			home = nullptr;
-		}
-
-		DEBUG_LOG(COMMON, "Checking home path: %s", homePath.c_str());
-
-		// Check in custom-boxart subdirectory of each FLYCAST_HOME path
-		for (const char* ext : extensions)
-		{
-			// Try the direct custom-boxart folder first
-			std::string contentPath = homePath + "/custom-boxart/";
-			DEBUG_LOG(COMMON, "Checking direct path: %s", contentPath.c_str());
-
-			if (!file_exists(contentPath))
-			{
-				// Then try the Flycast subdirectory
-				contentPath = homePath + "/Flycast/custom-boxart/";
-				DEBUG_LOG(COMMON, "Checking Flycast subdir: %s", contentPath.c_str());
-			}
-
-			if (file_exists(contentPath))
-			{
-				std::string fullPath = contentPath + baseName + ext;
-				DEBUG_LOG(COMMON, "Checking for file: %s", fullPath.c_str());
-
-				if (file_exists(fullPath))
-				{
-					NOTICE_LOG(COMMON, "Found custom boxart in content directory: %s", fullPath.c_str());
-					boxart.setBoxartPath(fullPath);
-					boxart.parsed = true;
-					return true;
-				}
 			}
 		}
 	}
