@@ -51,7 +51,7 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	// Check for common image formats
 	const char* extensions[] = { ".png", ".jpg", ".jpeg", ".webp" };
 
-	// First check in the custom boxart directory (includes content directory on Android)
+	// First check in the DATA/custom-boxart directory (original functionality)
 	std::string customDir = getCustomBoxartDirectory();
 	DEBUG_LOG(COMMON, "Looking in custom boxart directory: %s", customDir.c_str());
 
@@ -80,6 +80,36 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	}
 
 #ifdef __ANDROID__
+	// Check in Android content directory (if different from DATA directory)
+	std::string androidContentDir = ::getCustomBoxartPath();
+	if (androidContentDir != customDir)
+	{
+		DEBUG_LOG(COMMON, "Looking in Android content directory: %s", androidContentDir.c_str());
+		
+		if (!file_exists(androidContentDir))
+		{
+			DEBUG_LOG(COMMON, "Creating Android content custom boxart directory: %s", androidContentDir.c_str());
+			make_directory(androidContentDir);
+		}
+
+		for (const char* ext : extensions)
+		{
+			std::string customPath = androidContentDir;
+			if (!customPath.empty() && customPath.back() != '/' && customPath.back() != '\\')
+				customPath += '/';
+
+			customPath += baseName + ext;
+
+			if (file_exists(customPath))
+			{
+				NOTICE_LOG(COMMON, "Found custom boxart in Android content directory: %s", customPath.c_str());
+				boxart.setBoxartPath(customPath);
+				boxart.parsed = true;
+				return true;
+			}
+		}
+	}
+
 	// Also check in user-selected content directories on Android
 	for (const auto& contentPath : config::ContentPath.get())
 	{

@@ -40,7 +40,12 @@ public:
 	GameBoxart getBoxart(const GameMedia& media);
 	void term();
 	std::string getCustomBoxartPath() const {
-		return ::getCustomBoxartPath();
+		std::string path = get_writable_data_path("custom-boxart/");
+		// Convert backslashes to forward slashes for display consistency
+		for (char& c : path)
+			if (c == '\\')
+				c = '/';
+		return path;
 	}
 
 private:
