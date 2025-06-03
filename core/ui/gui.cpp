@@ -1860,9 +1860,7 @@ static void gui_settings_general()
 
 	if (ImGui::TreeNode("Custom Boxart"))
 	{
-		std::string customDir = get_writable_data_path("/custom_boxart/");
-		if (!file_exists(customDir))
-			make_directory(customDir);
+		std::string customDir = Boxart::get().getCustomBoxartPath();
 
 		// Convert backslashes to forward slashes for display consistency
 		std::string displayPath = customDir;
@@ -1872,6 +1870,19 @@ static void gui_settings_general()
 
 		ImGui::TextWrapped("To use custom boxart, place image files in the following folder:");
 		ImGui::TextWrapped("%s", displayPath.c_str());
+#ifdef __ANDROID__
+		ImGui::Separator();
+		ImGui::TextWrapped("On Android, you can also place custom boxart in any of your selected content directories:");
+		for (const auto& contentPath : config::ContentPath.get())
+		{
+			std::string contentCustomDir = contentPath + "/custom-boxart/";
+			// Convert backslashes to forward slashes for display consistency
+			for (char& c : contentCustomDir)
+				if (c == '\\')
+					c = '/';
+			ImGui::TextWrapped("• %s", contentCustomDir.c_str());
+		}
+#endif
 		ImGui::Separator();
 		ImGui::TextWrapped("Name your image files using the game filename (without extension).");
 		ImGui::TextWrapped("Supported formats: PNG, JPG, JPEG, WEBP");
