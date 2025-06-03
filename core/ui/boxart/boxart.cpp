@@ -79,6 +79,31 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 		}
 	}
 
+#ifdef __ANDROID__
+	// Check in user-selected content directories on Android
+	for (const auto& contentPath : config::ContentPath.get())
+	{
+		DEBUG_LOG(COMMON, "Checking user-selected content path: %s", contentPath.c_str());
+		
+		std::string customBoxartPath = contentPath + "/custom-boxart/";
+		DEBUG_LOG(COMMON, "Looking in user content custom boxart directory: %s", customBoxartPath.c_str());
+
+		for (const char* ext : extensions)
+		{
+			std::string fullPath = customBoxartPath + baseName + ext;
+			DEBUG_LOG(COMMON, "Checking for file: %s", fullPath.c_str());
+
+			if (file_exists(fullPath))
+			{
+				NOTICE_LOG(COMMON, "Found custom boxart in user content directory: %s", fullPath.c_str());
+				boxart.setBoxartPath(fullPath);
+				boxart.parsed = true;
+				return true;
+			}
+		}
+	}
+#endif
+
 	// Also check in the FLYCAST_HOME paths (for Android content directory)
 #ifdef __ANDROID__
 	const char *home = nowide::getenv("FLYCAST_HOME");
