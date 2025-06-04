@@ -23,7 +23,7 @@
 #include "cfg/option.h"
 #include <chrono>
 #include "nowide/cstdlib.hpp"
-#include "hostfs/hostfs.h"
+#include "oslib/storage.h"
 
 Boxart& Boxart::get()
 {
