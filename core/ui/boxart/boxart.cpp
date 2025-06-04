@@ -38,7 +38,36 @@ GameBoxart Boxart::getBoxart(const GameMedia& media)
 		std::lock_guard<std::mutex> guard(mutex);
 		auto it = games.find(media.fileName);
 		if (it != games.end())
+		{
 			boxart = it->second;
+			
+			// Always check for custom boxart, even in the simple getBoxart call
+			if (!boxart.parsed || boxart.boxartPath.empty() || !file_exists(boxart.boxartPath))
+			{
+				DEBUG_LOG(COMMON, "Re-checking custom boxart for %s (parsed: %d, path: %s)", 
+					media.fileName.c_str(), boxart.parsed, boxart.boxartPath.c_str());
+				if (checkCustomBoxart(boxart))
+				{
+					games[media.fileName] = boxart;
+					databaseDirty = true;
+				}
+			}
+		}
+		else
+		{
+			// Create new entry and check for custom boxart
+			boxart.fileName = media.fileName;
+			boxart.gamePath = media.path;
+			boxart.name = media.name;
+			boxart.searchName = media.gameName;
+			
+			DEBUG_LOG(COMMON, "New boxart entry for %s", media.fileName.c_str());
+			if (checkCustomBoxart(boxart))
+			{
+				games[boxart.fileName] = boxart;
+				databaseDirty = true;
+			}
+		}
 	}
 	return boxart;
 }
@@ -81,10 +110,13 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 
 #ifdef __ANDROID__
 	// Check in user-selected content directories on Android
-	DEBUG_LOG(COMMON, "Checking %d user-selected content directories", (int)config::ContentPath.get().size());
-	for (const auto& contentPath : config::ContentPath.get())
+	auto& contentPaths = config::ContentPath.get();
+	DEBUG_LOG(COMMON, "Android content directory check: Found %d user-selected content directories", (int)contentPaths.size());
+	
+	for (size_t i = 0; i < contentPaths.size(); i++)
 	{
-		DEBUG_LOG(COMMON, "Checking user-selected content path: %s", contentPath.c_str());
+		const auto& contentPath = contentPaths[i];
+		DEBUG_LOG(COMMON, "Checking user-selected content path [%d/%d]: %s", (int)(i+1), (int)contentPaths.size(), contentPath.c_str());
 		
 		std::string customBoxartPath = contentPath + "/custom-boxart/";
 		DEBUG_LOG(COMMON, "Looking in user content custom boxart directory: %s", customBoxartPath.c_str());
@@ -93,7 +125,11 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 		if (!file_exists(customBoxartPath))
 		{
 			DEBUG_LOG(COMMON, "Creating user content custom boxart directory: %s", customBoxartPath.c_str());
-			make_directory(customBoxartPath);
+			if (!make_directory(customBoxartPath))
+			{
+				DEBUG_LOG(COMMON, "Failed to create directory: %s", customBoxartPath.c_str());
+				continue;
+			}
 		}
 
 		for (const char* ext : extensions)
@@ -110,6 +146,10 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 			}
 		}
 	}
+	
+	DEBUG_LOG(COMMON, "Android content directory check completed, no custom boxart found");
+#else
+	DEBUG_LOG(COMMON, "Not compiled for Android, skipping content directory check");
 #endif
 
 	DEBUG_LOG(COMMON, "No custom boxart found for %s", baseName.c_str());
