@@ -23,6 +23,7 @@
 #include "cfg/option.h"
 #include <chrono>
 #include "nowide/cstdlib.hpp"
+#include "hostfs/hostfs.h"
 
 Boxart& Boxart::get()
 {
@@ -118,32 +119,55 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 		const auto& contentPath = contentPaths[i];
 		DEBUG_LOG(COMMON, "Checking user-selected content path [%d/%d]: %s", (int)(i+1), (int)contentPaths.size(), contentPath.c_str());
 		
-		std::string customBoxartPath = contentPath + "/custom-boxart/";
+		// Ensure proper path separator
+		std::string customBoxartPath = contentPath;
+		if (!customBoxartPath.empty() && customBoxartPath.back() != '/' && customBoxartPath.back() != '\\')
+			customBoxartPath += '/';
+		customBoxartPath += "custom-boxart/";
+		
 		DEBUG_LOG(COMMON, "Looking in user content custom boxart directory: %s", customBoxartPath.c_str());
 
-		// Create the directory if it doesn't exist
-		if (!file_exists(customBoxartPath))
-		{
-			DEBUG_LOG(COMMON, "Creating user content custom boxart directory: %s", customBoxartPath.c_str());
-			if (!make_directory(customBoxartPath))
+		// Try to use hostfs storage API for Android compatibility
+		try {
+			if (!hostfs::storage().exists(customBoxartPath))
 			{
-				DEBUG_LOG(COMMON, "Failed to create directory: %s", customBoxartPath.c_str());
-				continue;
+				DEBUG_LOG(COMMON, "Custom boxart directory doesn't exist: %s", customBoxartPath.c_str());
+				// Try to create it
+				if (!make_directory(customBoxartPath))
+				{
+					DEBUG_LOG(COMMON, "Failed to create directory: %s", customBoxartPath.c_str());
+					continue;
+				}
 			}
-		}
 
-		for (const char* ext : extensions)
-		{
-			std::string fullPath = customBoxartPath + baseName + ext;
-			DEBUG_LOG(COMMON, "Checking for file: %s", fullPath.c_str());
-
-			if (file_exists(fullPath))
+			for (const char* ext : extensions)
 			{
-				NOTICE_LOG(COMMON, "Found custom boxart in user content directory: %s", fullPath.c_str());
-				boxart.setBoxartPath(fullPath);
-				boxart.parsed = true;
-				return true;
+				std::string fullPath = customBoxartPath + baseName + ext;
+				DEBUG_LOG(COMMON, "Checking for file: %s", fullPath.c_str());
+
+				// Try both file_exists and hostfs storage check
+				bool exists = false;
+				try {
+					exists = hostfs::storage().exists(fullPath);
+					DEBUG_LOG(COMMON, "hostfs::storage().exists(%s) = %s", fullPath.c_str(), exists ? "true" : "false");
+				} catch (const hostfs::StorageException& e) {
+					DEBUG_LOG(COMMON, "hostfs storage exception: %s", e.what());
+					// Fall back to file_exists
+					exists = file_exists(fullPath);
+					DEBUG_LOG(COMMON, "file_exists(%s) = %s", fullPath.c_str(), exists ? "true" : "false");
+				}
+
+				if (exists)
+				{
+					NOTICE_LOG(COMMON, "Found custom boxart in user content directory: %s", fullPath.c_str());
+					boxart.setBoxartPath(fullPath);
+					boxart.parsed = true;
+					return true;
+				}
 			}
+		} catch (const hostfs::StorageException& e) {
+			DEBUG_LOG(COMMON, "Storage exception while checking content directory: %s", e.what());
+			continue;
 		}
 	}
 	
