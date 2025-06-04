@@ -80,43 +80,21 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	}
 
 #ifdef __ANDROID__
-	// Check in Android content directory (if different from DATA directory)
-	std::string androidContentDir = ::getCustomBoxartPath();
-	if (androidContentDir != customDir)
-	{
-		DEBUG_LOG(COMMON, "Looking in Android content directory: %s", androidContentDir.c_str());
-		
-		if (!file_exists(androidContentDir))
-		{
-			DEBUG_LOG(COMMON, "Creating Android content custom boxart directory: %s", androidContentDir.c_str());
-			make_directory(androidContentDir);
-		}
-
-		for (const char* ext : extensions)
-		{
-			std::string customPath = androidContentDir;
-			if (!customPath.empty() && customPath.back() != '/' && customPath.back() != '\\')
-				customPath += '/';
-
-			customPath += baseName + ext;
-
-			if (file_exists(customPath))
-			{
-				NOTICE_LOG(COMMON, "Found custom boxart in Android content directory: %s", customPath.c_str());
-				boxart.setBoxartPath(customPath);
-				boxart.parsed = true;
-				return true;
-			}
-		}
-	}
-
-	// Also check in user-selected content directories on Android
+	// Check in user-selected content directories on Android
+	DEBUG_LOG(COMMON, "Checking %d user-selected content directories", (int)config::ContentPath.get().size());
 	for (const auto& contentPath : config::ContentPath.get())
 	{
 		DEBUG_LOG(COMMON, "Checking user-selected content path: %s", contentPath.c_str());
 		
 		std::string customBoxartPath = contentPath + "/custom-boxart/";
 		DEBUG_LOG(COMMON, "Looking in user content custom boxart directory: %s", customBoxartPath.c_str());
+
+		// Create the directory if it doesn't exist
+		if (!file_exists(customBoxartPath))
+		{
+			DEBUG_LOG(COMMON, "Creating user content custom boxart directory: %s", customBoxartPath.c_str());
+			make_directory(customBoxartPath);
+		}
 
 		for (const char* ext : extensions)
 		{
