@@ -39,6 +39,7 @@ public:
 	GameBoxart getBoxartAndLoad(const GameMedia& media);
 	GameBoxart getBoxart(const GameMedia& media);
 	void term();
+	void scanContentDirectories();
 	std::string getCustomBoxartPath() const {
 		std::string path = get_writable_data_path("custom-boxart/");
 		// Convert backslashes to forward slashes for display consistency

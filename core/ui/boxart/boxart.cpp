@@ -77,9 +77,10 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	// Check in user-selected content directories (from General Settings)
 	for (const auto& contentPath : config::ContentPath.get())
 	{
-		// Quick check for cached content URI files first
+#ifdef __ANDROID__
 		if (contentPath.substr(0, 10) == "content://")
 		{
+			// Android content URI - check cache only (populated at startup)
 			for (const char* ext : extensions)
 			{
 				std::string localFile = getSaveDirectory() + "custom_" + baseName + ext;
@@ -90,70 +91,28 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 					return true;
 				}
 			}
+			continue;
 		}
+#endif
 		
+		// Regular filesystem path - instant changes
 		for (const char* ext : extensions)
 		{
-			if (contentPath.substr(0, 10) == "content://")
-			{
-				// Android content URI - use Storage API with caching
-				std::string localFile = getSaveDirectory() + "custom_" + baseName + ext;
-				
-				// Only check content URI if we don't have a cached version
-				try {
-					std::string customBoxartDir = hostfs::storage().getSubPath(contentPath, "custom-boxart");
-					std::string sourceFile = hostfs::storage().getSubPath(customBoxartDir, baseName + ext);
-					
-					if (hostfs::storage().exists(sourceFile))
-					{
-						// Copy content URI file to local cache efficiently
-						FILE* src = hostfs::storage().openFile(sourceFile, "rb");
-						if (src)
-						{
-							FILE* dst = nowide::fopen(localFile.c_str(), "wb");
-							if (dst)
-							{
-								// Use larger buffer and copy in chunks for better performance
-								char buffer[32768];
-								size_t bytes;
-								while ((bytes = fread(buffer, 1, sizeof(buffer), src)) > 0)
-								{
-									if (fwrite(buffer, 1, bytes, dst) != bytes)
-										break;
-								}
-								fclose(dst);
-								fclose(src);
-								
-								boxart.setBoxartPath(localFile);
-								boxart.parsed = true;
-								return true;
-							}
-							fclose(src);
-						}
-					}
-				} catch (const FlycastException&) {
-					// Continue to next location
-				}
-			}
-			else
-			{
-				// Regular filesystem path
-				std::string customBoxartDir = contentPath;
-				if (!customBoxartDir.empty() && customBoxartDir.back() != '/' && customBoxartDir.back() != '\\')
-					customBoxartDir += '/';
-				customBoxartDir += "custom-boxart/";
-				
-				if (!file_exists(customBoxartDir))
-					make_directory(customBoxartDir);
-				
-				std::string fullPath = customBoxartDir + baseName + ext;
+			std::string customBoxartDir = contentPath;
+			if (!customBoxartDir.empty() && customBoxartDir.back() != '/' && customBoxartDir.back() != '\\')
+				customBoxartDir += '/';
+			customBoxartDir += "custom-boxart/";
+			
+			if (!file_exists(customBoxartDir))
+				make_directory(customBoxartDir);
+			
+			std::string fullPath = customBoxartDir + baseName + ext;
 
-				if (file_exists(fullPath))
-				{
-					boxart.setBoxartPath(fullPath);
-					boxart.parsed = true;
-					return true;
-				}
+			if (file_exists(fullPath))
+			{
+				boxart.setBoxartPath(fullPath);
+				boxart.parsed = true;
+				return true;
 			}
 		}
 	}
@@ -407,10 +366,67 @@ void Boxart::loadDatabase()
 	std::string customDir = getCustomBoxartDirectory();
 	if (!file_exists(customDir))
 		make_directory(customDir);
+	
+	// Scan content directories once at startup (Android only)
+	scanContentDirectories();
 }
 
 void Boxart::term()
 {
 	if (fetching.valid())
 		fetching.get();
+}
+
+void Boxart::scanContentDirectories()
+{
+#ifdef __ANDROID__
+	// One-time scan at startup to cache custom boxart files from content directories
+	for (const auto& contentPath : config::ContentPath.get())
+	{
+		if (contentPath.substr(0, 10) == "content://")
+		{
+			try {
+				std::string customBoxartDir = hostfs::storage().getSubPath(contentPath, "custom-boxart");
+				auto files = hostfs::storage().listContent(customBoxartDir);
+				
+				for (const auto& file : files)
+				{
+					if (!file.isDirectory)
+					{
+						std::string ext = get_file_extension(file.name);
+						if (ext == "png" || ext == "jpg" || ext == "jpeg" || ext == "webp")
+						{
+							std::string baseName = get_file_basename(file.name);
+							std::string localFile = getSaveDirectory() + "custom_" + baseName + "." + ext;
+							
+							// Only copy if we don't already have it cached
+							if (!file_exists(localFile))
+							{
+								FILE* src = hostfs::storage().openFile(file.path, "rb");
+								if (src)
+								{
+									FILE* dst = nowide::fopen(localFile.c_str(), "wb");
+									if (dst)
+									{
+										char buffer[32768];
+										size_t bytes;
+										while ((bytes = fread(buffer, 1, sizeof(buffer), src)) > 0)
+										{
+											if (fwrite(buffer, 1, bytes, dst) != bytes)
+												break;
+										}
+										fclose(dst);
+									}
+									fclose(src);
+								}
+							}
+						}
+					}
+				}
+			} catch (const FlycastException&) {
+				// Continue to next content directory
+			}
+		}
+	}
+#endif
 }
