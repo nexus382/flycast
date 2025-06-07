@@ -1870,8 +1870,32 @@ static void gui_settings_general()
 			if (c == '\\')
 				c = '/';
 
-		ImGui::TextWrapped("To use custom boxart, place image files in the following folder:");
+		ImGui::TextWrapped("To use custom boxart, place image files in one of the following locations:");
+		ImGui::Spacing();
+		ImGui::TextWrapped("1. Main custom boxart folder:");
 		ImGui::TextWrapped("%s", displayPath.c_str());
+		
+		// Show content directory locations if any are configured
+		if (!config::ContentPath.get().empty())
+		{
+			ImGui::Spacing();
+			ImGui::TextWrapped("2. In any of your Content Directories, create a 'custom-boxart' subfolder:");
+			for (const auto& contentPath : config::ContentPath.get())
+			{
+				std::string contentBoxartPath = contentPath;
+				if (!contentBoxartPath.empty() && contentBoxartPath.back() != '/' && contentBoxartPath.back() != '\\')
+					contentBoxartPath += '/';
+				contentBoxartPath += "custom-boxart/";
+				
+				// Convert backslashes to forward slashes for display consistency
+				for (char& c : contentBoxartPath)
+					if (c == '\\')
+						c = '/';
+				
+				ImGui::TextWrapped("   %s", contentBoxartPath.c_str());
+			}
+		}
+		
 		ImGui::Separator();
 		ImGui::TextWrapped("Name your image files using the game filename (without extension).");
 		ImGui::TextWrapped("Supported formats: PNG, JPG, JPEG, WEBP");

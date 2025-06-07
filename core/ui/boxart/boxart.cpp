@@ -21,6 +21,7 @@
 #include "../game_scanner.h"
 #include "oslib/oslib.h"
 #include "cfg/option.h"
+#include "oslib/storage.h"
 #include <chrono>
 #include "nowide/cstdlib.hpp"
 
@@ -76,6 +77,46 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 			boxart.setBoxartPath(customPath);
 			boxart.parsed = true;
 			return true;
+		}
+	}
+
+	// Check in user-selected ContentPath directories for custom boxart
+	for (const auto& contentPath : config::ContentPath.get())
+	{
+		DEBUG_LOG(COMMON, "Checking ContentPath directory: %s", contentPath.c_str());
+		
+		// Use Storage API to access the content directory
+		try {
+			// Create custom-boxart subdirectory path
+			std::string customBoxartPath = hostfs::storage().getSubPath(contentPath, "custom-boxart");
+			DEBUG_LOG(COMMON, "Looking for custom boxart in: %s", customBoxartPath.c_str());
+
+			if (hostfs::storage().exists(customBoxartPath))
+			{
+				// Check all supported extensions
+				for (const char* ext : extensions)
+				{
+					std::string imageName = baseName + ext;
+					std::string fullImagePath = hostfs::storage().getSubPath(customBoxartPath, imageName);
+					DEBUG_LOG(COMMON, "Checking for image: %s", fullImagePath.c_str());
+
+					if (hostfs::storage().exists(fullImagePath))
+					{
+						NOTICE_LOG(COMMON, "Found custom boxart in ContentPath: %s", fullImagePath.c_str());
+						boxart.setBoxartPath(fullImagePath);
+						boxart.parsed = true;
+						return true;
+					}
+				}
+			}
+			else
+			{
+				DEBUG_LOG(COMMON, "Custom boxart directory doesn't exist in ContentPath: %s", customBoxartPath.c_str());
+			}
+		}
+		catch (const hostfs::StorageException& e)
+		{
+			DEBUG_LOG(COMMON, "Storage error accessing ContentPath %s: %s", contentPath.c_str(), e.what());
 		}
 	}
 
