@@ -20,7 +20,6 @@
 #include "gamesdb.h"
 #include "../game_scanner.h"
 #include "oslib/oslib.h"
-#include "oslib/storage.h"
 #include "cfg/option.h"
 #include <chrono>
 #include "nowide/cstdlib.hpp"
@@ -47,20 +46,15 @@ GameBoxart Boxart::getBoxart(const GameMedia& media)
 bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 {
 	std::string baseName = get_file_basename(boxart.fileName);
-	DEBUG_LOG(COMMON, "Checking custom boxart for %s", baseName.c_str());
 
 	// Check for common image formats
 	const char* extensions[] = { ".png", ".jpg", ".jpeg", ".webp" };
 
 	// First check in the custom boxart directory (from content directory on Android)
 	std::string customDir = getCustomBoxartDirectory();
-	DEBUG_LOG(COMMON, "Looking in custom boxart directory: %s", customDir.c_str());
 
 	if (!file_exists(customDir))
-	{
-		DEBUG_LOG(COMMON, "Creating custom boxart directory: %s", customDir.c_str());
 		make_directory(customDir);
-	}
 
 	for (const char* ext : extensions)
 	{
@@ -73,7 +67,6 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 
 		if (file_exists(customPath))
 		{
-			DEBUG_LOG(COMMON, "Found custom boxart: %s", customPath.c_str());
 			boxart.setBoxartPath(customPath);
 			boxart.parsed = true;
 			return true;
@@ -83,65 +76,29 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	// Check in user-selected content directories (from General Settings)
 	for (const auto& contentPath : config::ContentPath.get())
 	{
-		DEBUG_LOG(COMMON, "Checking content directory: %s", contentPath.c_str());
-		
+		// Skip content URIs for now - focus on regular filesystem paths that work reliably
+		if (contentPath.substr(0, 10) == "content://")
+			continue;
+			
 		for (const char* ext : extensions)
 		{
-			std::string customBoxartDir;
-			std::string fullPath;
+			// Regular filesystem path
+			std::string customBoxartDir = contentPath;
+			if (!customBoxartDir.empty() && customBoxartDir.back() != '/' && customBoxartDir.back() != '\\')
+				customBoxartDir += '/';
+			customBoxartDir += "custom-boxart/";
 			
-			// Use Storage API for content URIs, filesystem API for regular paths
-			if (contentPath.substr(0, 10) == "content://")
-			{
-				// Android content URI - use Storage API
-				try {
-					customBoxartDir = hostfs::storage().getSubPath(contentPath, "custom-boxart");
-					if (!hostfs::storage().exists(customBoxartDir))
-					{
-						DEBUG_LOG(COMMON, "Custom-boxart folder doesn't exist in content URI: %s", customBoxartDir.c_str());
-						continue; // Can't create directories via Storage API, skip this location
-					}
-					
-					fullPath = hostfs::storage().getSubPath(customBoxartDir, baseName + ext);
-					DEBUG_LOG(COMMON, "Checking for file via Storage API: %s", fullPath.c_str());
+			// Create directory if it doesn't exist
+			if (!file_exists(customBoxartDir))
+				make_directory(customBoxartDir);
+			
+			std::string fullPath = customBoxartDir + baseName + ext;
 
-					if (hostfs::storage().exists(fullPath))
-					{
-						NOTICE_LOG(COMMON, "Found custom boxart in content directory via Storage API: %s", fullPath.c_str());
-						boxart.setBoxartPath(fullPath);
-						boxart.parsed = true;
-						return true;
-					}
-				} catch (const FlycastException& e) {
-					DEBUG_LOG(COMMON, "Storage API error: %s", e.what());
-					continue;
-				}
-			}
-			else
+			if (file_exists(fullPath))
 			{
-				// Regular filesystem path
-				customBoxartDir = contentPath;
-				if (!customBoxartDir.empty() && customBoxartDir.back() != '/' && customBoxartDir.back() != '\\')
-					customBoxartDir += '/';
-				customBoxartDir += "custom-boxart/";
-				
-				// Create directory if it doesn't exist
-				if (!file_exists(customBoxartDir))
-				{
-					DEBUG_LOG(COMMON, "Creating content directory custom-boxart folder: %s", customBoxartDir.c_str());
-					make_directory(customBoxartDir);
-				}
-				
-				fullPath = customBoxartDir + baseName + ext;
-				DEBUG_LOG(COMMON, "Checking for file: %s", fullPath.c_str());
-
-				if (file_exists(fullPath))
-				{
-					NOTICE_LOG(COMMON, "Found custom boxart in content directory: %s", fullPath.c_str());
-					boxart.setBoxartPath(fullPath);
-					boxart.parsed = true;
-					return true;
-				}
+				boxart.setBoxartPath(fullPath);
+				boxart.parsed = true;
+				return true;
 			}
 		}
 	}
@@ -149,8 +106,6 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	// Also check in the FLYCAST_HOME paths (for Android content directory)
 #ifdef __ANDROID__
 	const char *home = nowide::getenv("FLYCAST_HOME");
-	if (home != nullptr)
-		DEBUG_LOG(COMMON, "Checking FLYCAST_HOME paths: %s", home);
 
 	while (home != nullptr)
 	{
@@ -167,30 +122,24 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 			home = nullptr;
 		}
 
-		DEBUG_LOG(COMMON, "Checking home path: %s", homePath.c_str());
-
 		// Check in custom-boxart subdirectory of each FLYCAST_HOME path
 		for (const char* ext : extensions)
 		{
 			// Try the direct custom-boxart folder first
 			std::string contentPath = homePath + "/custom-boxart/";
-			DEBUG_LOG(COMMON, "Checking direct path: %s", contentPath.c_str());
 
 			if (!file_exists(contentPath))
 			{
 				// Then try the Flycast subdirectory
 				contentPath = homePath + "/Flycast/custom-boxart/";
-				DEBUG_LOG(COMMON, "Checking Flycast subdir: %s", contentPath.c_str());
 			}
 
 			if (file_exists(contentPath))
 			{
 				std::string fullPath = contentPath + baseName + ext;
-				DEBUG_LOG(COMMON, "Checking for file: %s", fullPath.c_str());
 
 				if (file_exists(fullPath))
 				{
-					NOTICE_LOG(COMMON, "Found custom boxart in content directory: %s", fullPath.c_str());
 					boxart.setBoxartPath(fullPath);
 					boxart.parsed = true;
 					return true;
@@ -200,7 +149,6 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	}
 #endif
 
-	DEBUG_LOG(COMMON, "No custom boxart found for %s", baseName.c_str());
 	return false;
 }
 
