@@ -1870,29 +1870,20 @@ static void gui_settings_general()
 			if (c == '\\')
 				c = '/';
 
-		ImGui::TextWrapped("To use custom boxart, place image files in one of the following locations:");
-		ImGui::Spacing();
-		ImGui::TextWrapped("1. Main custom boxart folder:");
-		ImGui::TextWrapped("%s", displayPath.c_str());
+		ImGui::TextWrapped("To use custom boxart, place image files in any of the following folders:");
+		ImGui::TextWrapped("Primary location: %s", displayPath.c_str());
 		
-		// Show content directory locations if any are configured
+		// Show content directory locations
 		if (!config::ContentPath.get().empty())
 		{
-			ImGui::Spacing();
-			ImGui::TextWrapped("2. In any of your Content Directories, create a 'custom-boxart' subfolder:");
+			ImGui::TextWrapped("Content directory locations:");
 			for (const auto& contentPath : config::ContentPath.get())
 			{
-				std::string contentBoxartPath = contentPath;
-				if (!contentBoxartPath.empty() && contentBoxartPath.back() != '/' && contentBoxartPath.back() != '\\')
-					contentBoxartPath += '/';
-				contentBoxartPath += "custom-boxart/";
-				
-				// Convert backslashes to forward slashes for display consistency
-				for (char& c : contentBoxartPath)
+				std::string contentDisplayPath = contentPath + "/custom-boxart/";
+				for (char& c : contentDisplayPath)
 					if (c == '\\')
 						c = '/';
-				
-				ImGui::TextWrapped("   %s", contentBoxartPath.c_str());
+				ImGui::TextWrapped("  %s", contentDisplayPath.c_str());
 			}
 		}
 		

@@ -96,3 +96,5 @@ static inline void freeAligned(void *p)
 
 void registerCrash(const char *directory, const char *path);
 void uploadCrashes(const std::string& directory);
+
+std::string getCustomBoxartPath();
