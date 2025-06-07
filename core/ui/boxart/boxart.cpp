@@ -23,7 +23,6 @@
 #include "oslib/storage.h"
 #include "cfg/option.h"
 #include <chrono>
-#include "nowide/cstdlib.hpp"
 
 Boxart& Boxart::get()
 {
@@ -51,7 +50,7 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	// Check for common image formats
 	const char* extensions[] = { ".png", ".jpg", ".jpeg", ".webp" };
 
-	// First check in the custom boxart directory (from content directory on Android)
+	// First check in the custom boxart directory
 	std::string customDir = getCustomBoxartDirectory();
 
 	if (!file_exists(customDir))
@@ -116,52 +115,6 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 			}
 		}
 	}
-
-	// Also check in the FLYCAST_HOME paths (for Android content directory)
-#ifdef __ANDROID__
-	const char *home = nowide::getenv("FLYCAST_HOME");
-
-	while (home != nullptr)
-	{
-		const char *pcolon = strchr(home, ':');
-		std::string homePath;
-		if (pcolon != nullptr)
-		{
-			homePath = std::string(home, pcolon - home);
-			home = pcolon + 1;
-		}
-		else
-		{
-			homePath = home;
-			home = nullptr;
-		}
-
-		// Check in custom-boxart subdirectory of each FLYCAST_HOME path
-		for (const char* ext : extensions)
-		{
-			// Try the direct custom-boxart folder first
-			std::string contentPath = homePath + "/custom-boxart/";
-
-			if (!file_exists(contentPath))
-			{
-				// Then try the Flycast subdirectory
-				contentPath = homePath + "/Flycast/custom-boxart/";
-			}
-
-			if (file_exists(contentPath))
-			{
-				std::string fullPath = contentPath + baseName + ext;
-
-				if (file_exists(fullPath))
-				{
-					boxart.setBoxartPath(fullPath);
-					boxart.parsed = true;
-					return true;
-				}
-			}
-		}
-	}
-#endif
 
 	return false;
 }
@@ -248,7 +201,6 @@ void Boxart::fetchBoxart()
 			boxart = std::vector<GameBoxart>(toFetch.begin(), toFetch.begin() + size);
 			toFetch.erase(toFetch.begin(), toFetch.begin() + size);
 		}
-		DEBUG_LOG(COMMON, "Scraping %d games", (int)boxart.size());
 		offlineScraper->scrape(boxart);
 		{
 			std::lock_guard<std::mutex> guard(mutex);
@@ -309,8 +261,6 @@ void Boxart::saveDatabase()
 		WARN_LOG(COMMON, "Can't save boxart database to %s: error %d", db_name.c_str(), errno);
 		return;
 	}
-	DEBUG_LOG(COMMON, "Saving boxart database to %s", db_name.c_str());
-
 	json array;
 	{
 		std::lock_guard<std::mutex> guard(mutex);
@@ -338,7 +288,6 @@ void Boxart::loadDatabase()
 	if (f == nullptr)
 		return;
 
-	DEBUG_LOG(COMMON, "Loading boxart database from %s", db_name.c_str());
 	std::string all_data;
 	char buf[4096];
 	while (true)
