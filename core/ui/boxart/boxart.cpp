@@ -20,6 +20,7 @@
 #include "gamesdb.h"
 #include "../game_scanner.h"
 #include "oslib/oslib.h"
+#include "oslib/storage.h"
 #include "cfg/option.h"
 #include <chrono>
 #include "nowide/cstdlib.hpp"
@@ -76,29 +77,63 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	// Check in user-selected content directories (from General Settings)
 	for (const auto& contentPath : config::ContentPath.get())
 	{
-		// Skip content URIs for now - focus on regular filesystem paths that work reliably
-		if (contentPath.substr(0, 10) == "content://")
-			continue;
-			
 		for (const char* ext : extensions)
 		{
-			// Regular filesystem path
-			std::string customBoxartDir = contentPath;
-			if (!customBoxartDir.empty() && customBoxartDir.back() != '/' && customBoxartDir.back() != '\\')
-				customBoxartDir += '/';
-			customBoxartDir += "custom-boxart/";
-			
-			// Create directory if it doesn't exist
-			if (!file_exists(customBoxartDir))
-				make_directory(customBoxartDir);
-			
-			std::string fullPath = customBoxartDir + baseName + ext;
-
-			if (file_exists(fullPath))
+			if (contentPath.substr(0, 10) == "content://")
 			{
-				boxart.setBoxartPath(fullPath);
-				boxart.parsed = true;
-				return true;
+				// Android content URI - use Storage API
+				try {
+					std::string customBoxartDir = hostfs::storage().getSubPath(contentPath, "custom-boxart");
+					std::string sourceFile = hostfs::storage().getSubPath(customBoxartDir, baseName + ext);
+					
+					if (hostfs::storage().exists(sourceFile))
+					{
+						// Copy content URI file to local cache
+						std::string localFile = getSaveDirectory() + baseName + ext;
+						
+						FILE* src = hostfs::storage().openFile(sourceFile, "rb");
+						if (src)
+						{
+							FILE* dst = nowide::fopen(localFile.c_str(), "wb");
+							if (dst)
+							{
+								char buffer[4096];
+								size_t bytes;
+								while ((bytes = fread(buffer, 1, sizeof(buffer), src)) > 0)
+									fwrite(buffer, 1, bytes, dst);
+								fclose(dst);
+								
+								boxart.setBoxartPath(localFile);
+								boxart.parsed = true;
+								fclose(src);
+								return true;
+							}
+							fclose(src);
+						}
+					}
+				} catch (const FlycastException&) {
+					// Continue to next location
+				}
+			}
+			else
+			{
+				// Regular filesystem path
+				std::string customBoxartDir = contentPath;
+				if (!customBoxartDir.empty() && customBoxartDir.back() != '/' && customBoxartDir.back() != '\\')
+					customBoxartDir += '/';
+				customBoxartDir += "custom-boxart/";
+				
+				if (!file_exists(customBoxartDir))
+					make_directory(customBoxartDir);
+				
+				std::string fullPath = customBoxartDir + baseName + ext;
+
+				if (file_exists(fullPath))
+				{
+					boxart.setBoxartPath(fullPath);
+					boxart.parsed = true;
+					return true;
+				}
 			}
 		}
 	}
