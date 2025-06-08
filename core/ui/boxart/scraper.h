@@ -23,11 +23,14 @@
 
 #include <string>
 #include <vector>
+#include <filesystem>
 
 using namespace nlohmann;
 
 struct GameBoxart
 {
+	static constexpr const char* CUSTOM_BOXART_DIRECTORY = "custom-boxart";
+
 	std::string fileName;
 	std::string name;
 	std::string uniqueId;
@@ -92,8 +95,11 @@ struct GameBoxart
 	}
 
 	void setBoxartPath(const std::string& path) {
-		if (!boxartPath.empty())
-			nowide::remove(boxartPath.c_str());
+		if (!boxartPath.empty() && boxartPath != path) {
+			// Don't delete files in the custom-boxart directory
+			if (std::filesystem::path(boxartPath).parent_path().filename().string() != CUSTOM_BOXART_DIRECTORY)
+				nowide::remove(boxartPath.c_str());
+		}
 		boxartPath = path;
 	}
 };

@@ -47,7 +47,7 @@ public:
 	}
 
 public:
-	static constexpr const char* CUSTOM_BOXART_DIRECTORY = "custom-boxart/";
+	static constexpr const char* CUSTOM_BOXART_DIRECTORY = GameBoxart::CUSTOM_BOXART_DIRECTORY;
 
 private:
 	void loadDatabase();
