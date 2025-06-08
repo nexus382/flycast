@@ -52,13 +52,8 @@ CustomStorage& customStorage()
 }
 #endif
 
-#ifdef _WIN32
-static const std::string separators = "/\\";
-static const std::string native_separator = "\\";
-#else
-static const std::string separators = "/";
-static const std::string native_separator = "/";
-#endif
+static const std::string separators = get_path_separators();
+static const std::string native_separator = get_native_path_separator();
 
 class StdStorage : public Storage
 {

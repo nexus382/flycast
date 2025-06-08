@@ -15,6 +15,14 @@
 	#include <algorithm>
 #endif
 
+#ifdef _WIN32
+static const std::string separators = "/\\";
+static const std::string native_separator = "\\";
+#else
+static const std::string separators = "/";
+static const std::string native_separator = "/";
+#endif
+
 static std::string user_config_dir;
 static std::string user_data_dir;
 static std::vector<std::string> system_config_dirs;
@@ -52,7 +60,7 @@ std::string get_writable_config_path(const std::string& filename)
 	/* Only stuff in the user_config_dir is supposed to be writable,
 	 * so we always return that.
 	 */
-	return user_config_dir + filename;
+	return join_paths(user_config_dir, filename);
 }
 
 std::string get_readonly_config_path(const std::string& filename)
@@ -77,7 +85,7 @@ std::string get_writable_data_path(const std::string& filename)
 	/* Only stuff in the user_data_dir is supposed to be writable,
 	 * so we always return that.
 	 */
-	return user_data_dir + filename;
+	return join_paths(user_data_dir, filename);
 }
 
 std::string get_readonly_data_path(const std::string& filename)
@@ -125,6 +133,85 @@ std::string get_game_save_prefix()
 bool make_directory(const std::string& path)
 {
 	return flycast::mkdir(path.c_str(), 0755) == 0;
+}
+
+const std::string& get_path_separators()
+{
+	return separators;
+}
+
+const std::string& get_native_path_separator()
+{
+	return native_separator;
+}
+
+std::string join_paths(const std::string& left, const std::string& right)
+{
+	// Removing trailing slashes from left
+	std::string leftCpy = left;
+	while (!leftCpy.empty() && separators.find(leftCpy.back()) != std::string::npos)
+	{
+		leftCpy.erase(leftCpy.size() - 1);
+	}
+	if (leftCpy.empty() && !left.empty())
+	{
+		// Special case: left only contained separators, so preserve it
+		leftCpy = left;
+	}
+	else
+	{
+		// Add trailing slash to left
+		leftCpy += native_separator;
+	}
+
+	// Remove leading slashes from right
+	std::string rightCpy = right;
+	while (!rightCpy.empty() && separators.find(rightCpy.front()) != std::string::npos)
+	{
+		rightCpy.erase(0, 1);
+	}
+
+	return leftCpy + rightCpy;
+}
+
+std::string fix_path(const std::string& path)
+{
+	// Replace all separators with the native separator
+	std::string fixedPath = path;
+	if (separators != native_separator)
+	{
+		for (char& c : fixedPath)
+		{
+			if (separators.find(c) != std::string::npos)
+			{
+				c = native_separator[0];
+			}
+		}
+	}
+
+	const std::string doubleSep = native_separator + native_separator;
+
+	size_t pos = 0;
+#ifdef _WIN32
+	// Special case: a path starting with a double slash means something special in Windows
+	if ((fixedPath.size() >= doubleSep.size()) && (fixedPath.substr(0, doubleSep.size()) == doubleSep))
+	{
+		// Skip past initial double separator
+		pos = doubleSep.size();
+	}
+#endif
+
+	// Replace double separators with single separator
+	while (true)
+	{
+		pos = fixedPath.find(doubleSep, pos);
+		if (pos == std::string::npos)
+			break;
+
+		fixedPath = fixedPath.substr(0, pos) + native_separator + fixedPath.substr(pos + doubleSep.size());
+	}
+
+	return fixedPath;
 }
 
 void cThread::Start()

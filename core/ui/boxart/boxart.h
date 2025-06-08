@@ -38,12 +38,7 @@ public:
 	void term();
 	void scanContentDirectories();
 	std::string getCustomBoxartPath() const {
-		std::string path = get_writable_data_path(CUSTOM_BOXART_DIRECTORY);
-		// Convert backslashes to forward slashes for display consistency
-		for (char& c : path)
-			if (c == '\\')
-				c = '/';
-		return path;
+		return fix_path(get_writable_data_path(CUSTOM_BOXART_DIRECTORY));
 	}
 
 public:

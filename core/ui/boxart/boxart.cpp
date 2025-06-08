@@ -54,11 +54,7 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	for (const char* ext : extensions)
 	{
 		// Make sure we use the correct path separator for the OS
-		std::string customPath = customDir;
-		if (!customPath.empty() && customPath.back() != '/' && customPath.back() != '\\')
-			customPath += '/';
-
-		customPath += baseName + ext;
+		const std::string customPath = join_paths(customDir, baseName + ext);
 
 		if (file_exists(customPath))
 		{
@@ -92,15 +88,12 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 		// Regular filesystem path - instant changes
 		for (const char* ext : extensions)
 		{
-			std::string customBoxartDir = contentPath;
-			if (!customBoxartDir.empty() && customBoxartDir.back() != '/' && customBoxartDir.back() != '\\')
-				customBoxartDir += '/';
-			customBoxartDir += "custom-boxart/";
+			const std::string customBoxartDir = join_paths(contentPath, CUSTOM_BOXART_DIRECTORY);
 
 			if (!file_exists(customBoxartDir))
 				make_directory(customBoxartDir);
 
-			std::string fullPath = customBoxartDir + baseName + ext;
+			const std::string fullPath = join_paths(customBoxartDir, baseName + ext);
 
 			if (file_exists(fullPath))
 			{

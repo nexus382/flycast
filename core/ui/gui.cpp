@@ -1861,18 +1861,12 @@ static void gui_settings_general()
 
 	if (ImGui::TreeNode("Custom Boxart"))
 	{
-		std::string customDir = get_writable_data_path(Boxart::CUSTOM_BOXART_DIRECTORY);
+		const std::string customDir = get_writable_data_path(Boxart::CUSTOM_BOXART_DIRECTORY) + "/";
 		if (!file_exists(customDir))
 			make_directory(customDir);
 
-		// Convert backslashes to forward slashes for display consistency
-		std::string displayPath = customDir;
-		for (char& c : displayPath)
-			if (c == '\\')
-				c = '/';
-
 		ImGui::TextWrapped("To use custom boxart, place image files in any of the following folders:");
-		ImGui::TextWrapped("Primary location: %s", displayPath.c_str());
+		ImGui::TextWrapped("Primary location: %s", fix_path(customDir).c_str());
 
 		// Show content directory locations
 		if (!config::ContentPath.get().empty())
@@ -1880,10 +1874,7 @@ static void gui_settings_general()
 			ImGui::TextWrapped("Content directory locations:");
 			for (const auto& contentPath : config::ContentPath.get())
 			{
-				std::string contentDisplayPath = contentPath + "/" + Boxart::CUSTOM_BOXART_DIRECTORY;
-				for (char& c : contentDisplayPath)
-					if (c == '\\')
-						c = '/';
+				const std::string contentDisplayPath = fix_path(join_paths(contentPath, Boxart::CUSTOM_BOXART_DIRECTORY) + "/");
 				ImGui::TextWrapped("  %s", contentDisplayPath.c_str());
 			}
 		}
