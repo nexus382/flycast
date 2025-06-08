@@ -20,6 +20,7 @@
 
 #include "types.h"
 #include "json.hpp"
+#include "stdclass.h"
 
 #include <string>
 #include <vector>
@@ -96,9 +97,19 @@ struct GameBoxart
 
 	void setBoxartPath(const std::string& path) {
 		if (!boxartPath.empty() && boxartPath != path) {
+			bool erase = true;
 			// Don't delete files in the custom-boxart directory
-			std::filesystem::path boxartDir = std::filesystem::path(boxartPath).parent_path().filename();
-			if (boxartDir.string() != CUSTOM_BOXART_DIRECTORY)
+			std::string boxartDir = boxartPath;
+			size_t slashPos = get_last_slash_pos(boxartDir);
+			if (slashPos != std::string::npos) {
+				boxartDir.erase(slashPos);
+				slashPos = get_last_slash_pos(boxartDir);
+				if (slashPos != std::string::npos) {
+					boxartDir.erase(0, slashPos + 1);
+					erase = (boxartDir != CUSTOM_BOXART_DIRECTORY);
+				}
+			}
+			if (erase)
 				nowide::remove(boxartPath.c_str());
 		}
 		boxartPath = path;

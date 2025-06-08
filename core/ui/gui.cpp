@@ -72,7 +72,6 @@
 #endif
 #include <mutex>
 #include <algorithm>
-#include <filesystem>
 
 static bool game_started;
 
@@ -1881,12 +1880,11 @@ static void gui_settings_general()
 			ImGui::TextWrapped("Content directory locations:");
 			for (const auto& contentPath : config::ContentPath.get())
 			{
-				const std::filesystem::path contentDisplayPath = std::filesystem::path(contentPath) / Boxart::CUSTOM_BOXART_DIRECTORY;
-				std::string contentDisplayPathStr = contentDisplayPath.string();
-				for (char& c : contentDisplayPathStr)
+				std::string contentDisplayPath = contentPath + "/" + Boxart::CUSTOM_BOXART_DIRECTORY;
+				for (char& c : contentDisplayPath)
 					if (c == '\\')
 						c = '/';
-				ImGui::TextWrapped("  %s", contentDisplayPathStr.c_str());
+				ImGui::TextWrapped("  %s", contentDisplayPath.c_str());
 			}
 		}
 

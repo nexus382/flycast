@@ -10,7 +10,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <vector>
-#include <filesystem>
 
 #ifdef _WIN32
 	#include <algorithm>
@@ -78,8 +77,7 @@ std::string get_writable_data_path(const std::string& filename)
 	/* Only stuff in the user_data_dir is supposed to be writable,
 	 * so we always return that.
 	 */
-	const std::filesystem::path path = std::filesystem::path(user_data_dir) / filename;
-	return path.string();
+	return user_data_dir + filename;
 }
 
 std::string get_readonly_data_path(const std::string& filename)
