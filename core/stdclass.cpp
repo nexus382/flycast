@@ -153,15 +153,17 @@ std::string join_paths(const std::string& left, const std::string& right)
 	{
 		leftCpy.erase(leftCpy.size() - 1);
 	}
-	if (leftCpy.empty() && !left.empty())
-	{
-		// Special case: left only contained separators, so preserve it
-		leftCpy = left;
-	}
-	else
+
+	if (!leftCpy.empty())
 	{
 		// Add trailing slash to left
 		leftCpy += native_separator;
+	}
+	else if (!left.empty())
+	{
+		// Special case: left only contained separators, so preserve it in its entirety
+		// NOTE: Windows paths starting with double slash means something special, so this preserves that
+		leftCpy = left;
 	}
 
 	// Remove leading slashes from right
