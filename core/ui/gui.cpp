@@ -1881,7 +1881,7 @@ static void gui_settings_general()
 			ImGui::TextWrapped("Content directory locations:");
 			for (const auto& contentPath : config::ContentPath.get())
 			{
-				std::string contentDisplayPath = (std::filesystem::path(contentPath) / Boxart::CUSTOM_BOXART_DIRECTORY).string() + "/";
+				std::string contentDisplayPath = (std::filesystem::path(contentPath) / Boxart::CUSTOM_BOXART_DIRECTORY).string();
 				for (char& c : contentDisplayPath)
 					if (c == '\\')
 						c = '/';
