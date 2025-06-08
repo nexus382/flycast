@@ -23,6 +23,7 @@
 #include "oslib/storage.h"
 #include "cfg/option.h"
 #include <chrono>
+#include <filesystem>
 
 GameBoxart Boxart::getBoxart(const GameMedia& media)
 {
@@ -45,7 +46,7 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	const char* extensions[] = { ".png", ".jpg", ".jpeg", ".webp" };
 
 	// First check in the custom boxart directory
-	std::string customDir = getCustomBoxartDirectory();
+	const std::string customDir = getCustomBoxartPath();
 
 	if (!file_exists(customDir))
 		make_directory(customDir);
@@ -53,11 +54,7 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	for (const char* ext : extensions)
 	{
 		// Make sure we use the correct path separator for the OS
-		std::string customPath = customDir;
-		if (!customPath.empty() && customPath.back() != '/' && customPath.back() != '\\')
-			customPath += '/';
-
-		customPath += baseName + ext;
+		const std::string customPath = (std::filesystem::path(customDir) / (baseName + ext)).string();
 
 		if (file_exists(customPath))
 		{
@@ -68,7 +65,7 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	}
 
 	// Check in user-selected content directories (from General Settings)
-	for (const auto& contentPath : config::ContentPath.get())
+	for (const std::string& contentPath : config::ContentPath.get())
 	{
 #ifdef __ANDROID__
 		if (contentPath.substr(0, 10) == "content://")
@@ -91,15 +88,12 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 		// Regular filesystem path - instant changes
 		for (const char* ext : extensions)
 		{
-			std::string customBoxartDir = contentPath;
-			if (!customBoxartDir.empty() && customBoxartDir.back() != '/' && customBoxartDir.back() != '\\')
-				customBoxartDir += '/';
-			customBoxartDir += "custom-boxart/";
+			const std::string customBoxartDir = (std::filesystem::path(contentPath) / CUSTOM_BOXART_DIRECTORY).string();
 
 			if (!file_exists(customBoxartDir))
 				make_directory(customBoxartDir);
 
-			std::string fullPath = customBoxartDir + baseName + ext;
+			const std::string fullPath = (std::filesystem::path(customBoxartDir) / (baseName + ext)).string();
 
 			if (file_exists(fullPath))
 			{
@@ -310,7 +304,7 @@ void Boxart::loadDatabase()
 	}
 
 	// Create custom boxart directory if it doesn't exist
-	std::string customDir = getCustomBoxartDirectory();
+	std::string customDir = getCustomBoxartPath();
 	if (!file_exists(customDir))
 		make_directory(customDir);
 
@@ -333,7 +327,7 @@ void Boxart::scanContentDirectories()
 		if (contentPath.substr(0, 10) == "content://")
 		{
 			try {
-				std::string customBoxartDir = hostfs::storage().getSubPath(contentPath, "custom-boxart");
+				std::string customBoxartDir = hostfs::storage().getSubPath(contentPath, CUSTOM_BOXART_DIRECTORY);
 				auto files = hostfs::storage().listContent(customBoxartDir);
 
 				for (const auto& file : files)

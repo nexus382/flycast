@@ -72,6 +72,7 @@
 #endif
 #include <mutex>
 #include <algorithm>
+#include <filesystem>
 
 static bool game_started;
 
@@ -98,8 +99,8 @@ void error_popup();
 
 static GameScanner scanner;
 static BackgroundGameLoader gameLoader;
-static Chat chat;
 static Boxart boxart;
+static Chat chat;
 static std::recursive_mutex guiMutex;
 using LockGuard = std::lock_guard<std::recursive_mutex>;
 
@@ -1861,7 +1862,7 @@ static void gui_settings_general()
 
 	if (ImGui::TreeNode("Custom Boxart"))
 	{
-		std::string customDir = get_writable_data_path("/custom_boxart/");
+		std::string customDir = get_writable_data_path(Boxart::CUSTOM_BOXART_DIRECTORY);
 		if (!file_exists(customDir))
 			make_directory(customDir);
 
@@ -1880,7 +1881,7 @@ static void gui_settings_general()
 			ImGui::TextWrapped("Content directory locations:");
 			for (const auto& contentPath : config::ContentPath.get())
 			{
-				std::string contentDisplayPath = contentPath + "/custom-boxart/";
+				std::string contentDisplayPath = (std::filesystem::path(contentPath) / Boxart::CUSTOM_BOXART_DIRECTORY).string() + "/";
 				for (char& c : contentDisplayPath)
 					if (c == '\\')
 						c = '/';

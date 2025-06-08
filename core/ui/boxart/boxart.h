@@ -38,7 +38,7 @@ public:
 	void term();
 	void scanContentDirectories();
 	std::string getCustomBoxartPath() const {
-		std::string path = get_writable_data_path("custom-boxart/");
+		std::string path = get_writable_data_path(CUSTOM_BOXART_DIRECTORY);
 		// Convert backslashes to forward slashes for display consistency
 		for (char& c : path)
 			if (c == '\\')
@@ -46,14 +46,14 @@ public:
 		return path;
 	}
 
+public:
+	static constexpr const char* CUSTOM_BOXART_DIRECTORY = "custom-boxart/";
+
 private:
 	void loadDatabase();
 	void saveDatabase();
 	std::string getSaveDirectory() const {
 		return get_writable_data_path("boxart/");
-	}
-	std::string getCustomBoxartDirectory() const {
-		return getCustomBoxartPath();
 	}
 	bool checkCustomBoxart(GameBoxart& boxart);
 	void fetchBoxart();

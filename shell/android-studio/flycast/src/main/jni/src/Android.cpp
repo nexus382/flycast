@@ -502,25 +502,11 @@ std::string getFilesPath()
 
 void dc_exit()
 {
-    //Kill maple
-    //Sockets
-    //Threads
-
-    flycast_term();
-
-    if (g_jvm)
-    {
-        jni::JVMAttacher attacher;
+	settings.content.path.clear();
 	if (g_activity != nullptr)
 	{
-            jni::env()->CallVoidMethod(g_activity, onGameStateChangeMid, false);
-            jni::env()->DeleteGlobalRef(g_activity);
-            g_activity = nullptr;
-        }
-    }
-    game_started = false;
-}
-
-namespace config {
-	extern Option<int> FastForwardMode;
+		JNIEnv *env = jni::env();Add commentMore actions
+		jmethodID finishAffinity = env->GetMethodID(env->GetObjectClass(g_activity), "finishAffinity", "()V");
+		jni::env()->CallVoidMethod(g_activity, finishAffinity);
+	}
 }
