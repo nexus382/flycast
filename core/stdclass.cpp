@@ -78,7 +78,8 @@ std::string get_writable_data_path(const std::string& filename)
 	/* Only stuff in the user_data_dir is supposed to be writable,
 	 * so we always return that.
 	 */
-	return (std::filesystem::path(user_data_dir) / filename).string();
+	const std::filesystem::path path = std::filesystem::path(user_data_dir) / filename;
+	return path.string();
 }
 
 std::string get_readonly_data_path(const std::string& filename)

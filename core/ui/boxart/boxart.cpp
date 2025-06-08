@@ -54,11 +54,12 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 	for (const char* ext : extensions)
 	{
 		// Make sure we use the correct path separator for the OS
-		const std::string customPath = (std::filesystem::path(customDir) / (baseName + ext)).string();
+		const std::filesystem::path customPath = std::filesystem::path(customDir) / (baseName + ext);
+		const std::string customPathStr = customPath.string();
 
-		if (file_exists(customPath))
+		if (file_exists(customPathStr))
 		{
-			boxart.setBoxartPath(customPath);
+			boxart.setBoxartPath(customPathStr);
 			boxart.parsed = true;
 			return true;
 		}
@@ -88,16 +89,18 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 		// Regular filesystem path - instant changes
 		for (const char* ext : extensions)
 		{
-			const std::string customBoxartDir = (std::filesystem::path(contentPath) / CUSTOM_BOXART_DIRECTORY).string();
+			const std::filesystem::path customBoxartDir = std::filesystem::path(contentPath) / CUSTOM_BOXART_DIRECTORY;
+			const std::string customBoxartDirStr = customBoxartDir.string();
 
-			if (!file_exists(customBoxartDir))
-				make_directory(customBoxartDir);
+			if (!file_exists(customBoxartDirStr))
+				make_directory(customBoxartDirStr);
 
-			const std::string fullPath = (std::filesystem::path(customBoxartDir) / (baseName + ext)).string();
+			const std::filesystem::path fullPath = customBoxartDir / (baseName + ext);
+			const std::string fullPathStr = fullPath.string();
 
-			if (file_exists(fullPath))
+			if (file_exists(fullPathStr))
 			{
-				boxart.setBoxartPath(fullPath);
+				boxart.setBoxartPath(fullPathStr);
 				boxart.parsed = true;
 				return true;
 			}

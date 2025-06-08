@@ -1881,11 +1881,12 @@ static void gui_settings_general()
 			ImGui::TextWrapped("Content directory locations:");
 			for (const auto& contentPath : config::ContentPath.get())
 			{
-				std::string contentDisplayPath = (std::filesystem::path(contentPath) / Boxart::CUSTOM_BOXART_DIRECTORY).string();
-				for (char& c : contentDisplayPath)
+				const std::filesystem::path contentDisplayPath = std::filesystem::path(contentPath) / Boxart::CUSTOM_BOXART_DIRECTORY;
+				std::string contentDisplayPathStr = contentDisplayPath.string();
+				for (char& c : contentDisplayPathStr)
 					if (c == '\\')
 						c = '/';
-				ImGui::TextWrapped("  %s", contentDisplayPath.c_str());
+				ImGui::TextWrapped("  %s", contentDisplayPathStr.c_str());
 			}
 		}
 
