@@ -12,7 +12,6 @@
 #include "cfg/option.h"
 #include "stdclass.h"
 #include "oslib/oslib.h"
-#include "ui/boxart/boxart.h"
 #ifdef USE_BREAKPAD
 #include "client/linux/handler/exception_handler.h"
 #endif
@@ -505,7 +504,7 @@ void dc_exit()
 	settings.content.path.clear();
 	if (g_activity != nullptr)
 	{
-		JNIEnv *env = jni::env();Add commentMore actions
+		JNIEnv *env = jni::env();
 		jmethodID finishAffinity = env->GetMethodID(env->GetObjectClass(g_activity), "finishAffinity", "()V");
 		jni::env()->CallVoidMethod(g_activity, finishAffinity);
 	}
