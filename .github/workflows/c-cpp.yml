@@ -58,7 +58,7 @@ jobs:
       - name: Set up build environment (Windows, Visual Studio)
         run: |
           choco install ccache directx-sdk ninja
-          echo DXSDK_DIR=C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)>> $env:GITHUB_ENV
+          echo "DXSDK_DIR=C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)">> $env:GITHUB_ENV
         if: matrix.config.shell == 'powershell'
 
       - uses: ilammy/msvc-dev-cmd@v1
