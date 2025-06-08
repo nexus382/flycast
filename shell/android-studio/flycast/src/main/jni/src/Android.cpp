@@ -521,20 +521,6 @@ void dc_exit()
     game_started = false;
 }
 
-// Content directory for custom boxart on Android
-static std::string android_content_directory;
-
-extern "C" JNIEXPORT void JNICALL Java_com_flycast_emulator_AndroidStorage_setContentDirectory(JNIEnv *env, jobject obj, jstring path)
-{
-    android_content_directory = jni::String(path, false).to_string();
-    INFO_LOG(COMMON, "Setting Android content directory: %s", android_content_directory.c_str());
-
-    // Force reload of boxart database to pick up custom boxart
-    Boxart::get().term();
-    INFO_LOG(COMMON, "Boxart database will be reloaded on next access");
-}
-
-std::string getAndroidContentDirectory()
-{
-    return android_content_directory;
+namespace config {
+	extern Option<int> FastForwardMode;
 }

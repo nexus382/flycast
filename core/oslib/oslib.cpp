@@ -508,38 +508,3 @@ void registerCrash(const char *directory, const char *path) {}
 void uploadCrashes(const std::string& directory) {}
 
 #endif
-
-std::string getCustomBoxartPath()
-{
-#ifdef __ANDROID__
-	extern std::string getAndroidContentDirectory();
-	std::string androidPath = getAndroidContentDirectory();
-	if (!androidPath.empty())
-	{
-		std::string contentPath = androidPath + "/custom-boxart/";
-		INFO_LOG(COMMON, "Android content directory for custom boxart: %s", contentPath.c_str());
-		if (!file_exists(contentPath))
-		{
-			INFO_LOG(COMMON, "Creating Android content directory for custom boxart");
-			make_directory(contentPath);
-		}
-		else
-		{
-			INFO_LOG(COMMON, "Android content directory for custom boxart exists");
-		}
-		return contentPath;
-	}
-	else
-	{
-		INFO_LOG(COMMON, "No Android content directory set, using default path");
-	}
-#endif
-	std::string path = get_writable_data_path("custom-boxart/");
-	INFO_LOG(COMMON, "Using default custom boxart path: %s", path.c_str());
-	if (!file_exists(path))
-	{
-		INFO_LOG(COMMON, "Creating default custom boxart directory");
-		make_directory(path);
-	}
-	return path;
-}

@@ -69,7 +69,10 @@ public class AndroidStorage {
     public native void init();
     public native void addStorageCallback(String path);
     public native void reloadConfig();
-    public native void setContentDirectory(String path);
+    public native void setStorageDirectories(List<String> directories);
+    public native void setDocumentDir(String uri);
+    public native void requestContentAccess(String mimeType);
+    public native void configureStorageAccess();
 
     public void onAddStorageResult(Intent data)
     {
