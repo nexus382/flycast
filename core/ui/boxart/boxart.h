@@ -33,9 +33,6 @@ struct GameMedia;
 class Boxart
 {
 public:
-	//! @return the singleton boxart object
-	static Boxart& get();
-
 	GameBoxart getBoxartAndLoad(const GameMedia& media);
 	GameBoxart getBoxart(const GameMedia& media);
 	void term();

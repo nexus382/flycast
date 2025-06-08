@@ -188,9 +188,8 @@ public abstract class BaseGLActivity extends Activity implements ActivityCompat.
         pathList.addAll(FileBrowser.getExternalMounts());
         pathList.add(getApplicationContext().getFilesDir().getAbsolutePath());
         File dir= getApplicationContext().getExternalFilesDir(null);
-        if (dir != null) {
+        if (dir != null)
             pathList.add(dir.getAbsolutePath());
-        }
         Log.i("flycast", "Storage dirs: " + pathList);
         if (storage != null)
             storage.setStorageDirectories(pathList);

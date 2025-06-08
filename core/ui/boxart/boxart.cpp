@@ -24,12 +24,6 @@
 #include "cfg/option.h"
 #include <chrono>
 
-Boxart& Boxart::get()
-{
-	static Boxart boxart;
-	return boxart;
-}
-
 GameBoxart Boxart::getBoxart(const GameMedia& media)
 {
 	loadDatabase();
@@ -93,7 +87,7 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 			continue;
 		}
 #endif
-		
+
 		// Regular filesystem path - instant changes
 		for (const char* ext : extensions)
 		{
@@ -101,10 +95,10 @@ bool Boxart::checkCustomBoxart(GameBoxart& boxart)
 			if (!customBoxartDir.empty() && customBoxartDir.back() != '/' && customBoxartDir.back() != '\\')
 				customBoxartDir += '/';
 			customBoxartDir += "custom-boxart/";
-			
+
 			if (!file_exists(customBoxartDir))
 				make_directory(customBoxartDir);
-			
+
 			std::string fullPath = customBoxartDir + baseName + ext;
 
 			if (file_exists(fullPath))
@@ -201,6 +195,7 @@ void Boxart::fetchBoxart()
 			boxart = std::vector<GameBoxart>(toFetch.begin(), toFetch.begin() + size);
 			toFetch.erase(toFetch.begin(), toFetch.begin() + size);
 		}
+		DEBUG_LOG(COMMON, "Scraping %d games", (int)boxart.size());
 		offlineScraper->scrape(boxart);
 		{
 			std::lock_guard<std::mutex> guard(mutex);
@@ -261,6 +256,8 @@ void Boxart::saveDatabase()
 		WARN_LOG(COMMON, "Can't save boxart database to %s: error %d", db_name.c_str(), errno);
 		return;
 	}
+	DEBUG_LOG(COMMON, "Saving boxart database to %s", db_name.c_str());
+
 	json array;
 	{
 		std::lock_guard<std::mutex> guard(mutex);
@@ -288,6 +285,7 @@ void Boxart::loadDatabase()
 	if (f == nullptr)
 		return;
 
+	DEBUG_LOG(COMMON, "Loading boxart database from %s", db_name.c_str());
 	std::string all_data;
 	char buf[4096];
 	while (true)
@@ -315,7 +313,7 @@ void Boxart::loadDatabase()
 	std::string customDir = getCustomBoxartDirectory();
 	if (!file_exists(customDir))
 		make_directory(customDir);
-	
+
 	// Scan content directories once at startup (Android only)
 	scanContentDirectories();
 }
@@ -337,7 +335,7 @@ void Boxart::scanContentDirectories()
 			try {
 				std::string customBoxartDir = hostfs::storage().getSubPath(contentPath, "custom-boxart");
 				auto files = hostfs::storage().listContent(customBoxartDir);
-				
+
 				for (const auto& file : files)
 				{
 					if (!file.isDirectory)
@@ -347,7 +345,7 @@ void Boxart::scanContentDirectories()
 						{
 							std::string baseName = get_file_basename(file.name);
 							std::string localFile = getSaveDirectory() + "custom_" + baseName + "." + ext;
-							
+
 							// Only copy if we don't already have it cached
 							if (!file_exists(localFile))
 							{
