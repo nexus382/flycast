@@ -4,6 +4,8 @@
 #include "stdclass.h"
 #include "sdl.h"
 
+#include <cmath>
+
 template<bool Arcade = false, bool Gamepad = false>
 class DefaultInputMapping : public InputMapping
 {
@@ -460,7 +462,6 @@ public:
 		if (haptic != nullptr)
 		{
 			stopHaptic();
-			SDL_HapticSetGain(haptic, 0);
 			if (sineEffectId != -1) {
 				SDL_HapticDestroyEffect(haptic, sineEffectId);
 				sineEffectId = -1;

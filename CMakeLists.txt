@@ -32,7 +32,7 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-if(NINTENDO_SWITCH)
+if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD" OR NINTENDO_SWITCH)
 	set(CMAKE_CXX_EXTENSIONS ON)
 else()
 	set(CMAKE_CXX_EXTENSIONS OFF)
@@ -248,7 +248,7 @@ else()
 		$<$<COMPILE_LANGUAGE:CXX>:-Wall>)
 endif()
 
-if(${CMAKE_OSX_SYSROOT} MATCHES "\/MacOSX.platform\/Developer\/SDKs")
+if(APPLE AND NOT IOS)
 	set(TARGET_MAC ON)
 endif()
 
@@ -284,6 +284,10 @@ if(LIBRETRO)
 endif()
 if(NINTENDO_SWITCH)
 	target_include_directories(${PROJECT_NAME} PRIVATE shell/switch)
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")
+	target_link_options(${PROJECT_NAME} PRIVATE "-Wl,--no-execute-only")
 endif()
 
 if(USE_BREAKPAD AND NOT LIBRETRO)
@@ -739,7 +743,7 @@ if(NOT LIBRETRO AND NOT NINTENDO_SWITCH)
 	target_include_directories(${PROJECT_NAME} PRIVATE core/deps/websocketpp)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE ASIO_STANDALONE)
 	if (MSVC)
-		target_compile_definitions(${PROJECT_NAME} PRIVATE 
+		target_compile_definitions(${PROJECT_NAME} PRIVATE
 			_WEBSOCKETPP_CPP11_FUNCTIONAL_
 			_WEBSOCKETPP_CPP11_SYSTEM_ERROR_
 			_WEBSOCKETPP_CPP11_RANDOM_DEVICE_
@@ -1945,6 +1949,7 @@ if(BUILD_TESTING)
 	add_subdirectory(core/deps/googletest EXCLUDE_FROM_ALL)
 	target_link_libraries(${PROJECT_NAME} PRIVATE GTest::gtest_main)
 
+	target_include_directories(${PROJECT_NAME} PUBLIC tests/inc)
 	target_sources(${PROJECT_NAME} PRIVATE
 			tests/src/CheatManagerTest.cpp
 			tests/src/ConfigFileTest.cpp
@@ -1954,6 +1959,12 @@ if(BUILD_TESTING)
 			tests/src/AicaArmTest.cpp
 			tests/src/Sh4InterpreterTest.cpp
 			tests/src/MmuTest.cpp
+			tests/src/input/ButtonComboTest.cpp
+			tests/src/input/GamepadInputHandlingTest.cpp
+			tests/src/input/MultiBindMappingTest.cpp
+			tests/src/input/InputDefTest.cpp
+			tests/src/input/InputMappingConfigFileTest.cpp
+			tests/src/input/InputSetTest.cpp
 			tests/src/util/PeriodicThreadTest.cpp
 			tests/src/util/TsQueueTest.cpp
 			tests/src/util/WorkerThreadTest.cpp)
