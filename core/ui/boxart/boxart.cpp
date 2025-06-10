@@ -24,6 +24,7 @@
 #include "cfg/option.h"
 #include <chrono>
 #include <filesystem>
+#include <set>
 
 GameBoxart Boxart::getBoxart(const GameMedia& media)
 {
@@ -321,6 +322,9 @@ void Boxart::term()
 void Boxart::scanContentDirectories()
 {
 #ifdef __ANDROID__
+	// Keep track of valid custom boxart files that should be cached
+	std::set<std::string> validCachedFiles;
+	
 	// One-time scan at startup to cache custom boxart files from content directories
 	for (const auto& contentPath : config::ContentPath.get())
 	{
@@ -339,6 +343,7 @@ void Boxart::scanContentDirectories()
 						{
 							std::string baseName = get_file_basename(file.name);
 							std::string localFile = getSaveDirectory() + "custom_" + baseName + "." + ext;
+							validCachedFiles.insert(localFile);
 
 							// Only copy if we don't already have it cached
 							if (!file_exists(localFile))
@@ -368,6 +373,29 @@ void Boxart::scanContentDirectories()
 				// Continue to next content directory
 			}
 		}
+	}
+	
+	// Clean up orphaned cached files (files that no longer exist in source directories)
+	try {
+		std::string saveDir = getSaveDirectory();
+		for (const auto& entry : std::filesystem::directory_iterator(saveDir))
+		{
+			if (entry.is_regular_file())
+			{
+				std::string filename = entry.path().filename().string();
+				if (filename.substr(0, 7) == "custom_")
+				{
+					std::string fullPath = entry.path().string();
+					if (validCachedFiles.find(fullPath) == validCachedFiles.end())
+					{
+						nowide::remove(fullPath.c_str());
+						DEBUG_LOG(COMMON, "Removed orphaned cached custom boxart: %s", filename.c_str());
+					}
+				}
+			}
+		}
+	} catch (const std::exception& e) {
+		WARN_LOG(COMMON, "Error cleaning up cached custom boxart: %s", e.what());
 	}
 #endif
 }
