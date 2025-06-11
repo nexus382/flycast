@@ -52,6 +52,7 @@ private:
 	}
 	bool checkCustomBoxart(GameBoxart& boxart);
 	void fetchBoxart();
+	void validateCustomBoxartFlags();
 
 	std::unordered_map<std::string, GameBoxart> games;
 	std::mutex mutex;

@@ -311,6 +311,9 @@ void Boxart::loadDatabase()
 
 	// Scan content directories once at startup (Android only)
 	scanContentDirectories();
+	
+	// Check database entries and reset custom flags for missing files
+	validateCustomBoxartFlags();
 }
 
 void Boxart::term()
@@ -398,4 +401,35 @@ void Boxart::scanContentDirectories()
 		WARN_LOG(COMMON, "Error cleaning up cached custom boxart: %s", e.what());
 	}
 #endif
+}
+
+void Boxart::validateCustomBoxartFlags()
+{
+	std::lock_guard<std::mutex> guard(mutex);
+	
+	for (auto& game : games)
+	{
+		// Only check entries marked as having custom boxart
+		if (!game.second.parsed)
+			continue;
+		
+		// Check if the custom boxart file actually exists
+		bool customExists = false;
+		if (!game.second.boxartPath.empty())
+		{
+			customExists = file_exists(game.second.boxartPath);
+		}
+		
+		if (!customExists)
+		{
+			// Custom boxart file is missing, revert to scraped image
+			game.second.parsed = false;
+			game.second.boxartPath.clear();  // Clear the invalid path
+			databaseDirty = true;
+			DEBUG_LOG(COMMON, "Reset custom boxart flag for %s - custom file missing", game.second.fileName.c_str());
+		}
+	}
+	
+	if (databaseDirty)
+		saveDatabase();
 }
