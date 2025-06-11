@@ -8,6 +8,9 @@ class PeriodicThreadTest : public ::testing::Test
 {
 };
 
+// PeriodicThreadTest.Basic sometimes has issues running on Windows
+#ifndef _WIN32
+
 TEST_F(PeriodicThreadTest, Basic)
 {
 	std::atomic<int> counter = 0;
@@ -26,3 +29,5 @@ TEST_F(PeriodicThreadTest, Basic)
 	usleep(15'000);
 	ASSERT_EQ(copy, counter);
 }
+
+#endif

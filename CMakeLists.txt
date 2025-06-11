@@ -1959,6 +1959,7 @@ if(BUILD_TESTING)
 			tests/src/AicaArmTest.cpp
 			tests/src/Sh4InterpreterTest.cpp
 			tests/src/MmuTest.cpp
+			tests/src/StdclassTest.cpp
 			tests/src/input/ButtonComboTest.cpp
 			tests/src/input/GamepadInputHandlingTest.cpp
 			tests/src/input/MultiBindMappingTest.cpp

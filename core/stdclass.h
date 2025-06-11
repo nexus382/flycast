@@ -71,6 +71,15 @@ std::string get_readonly_data_path(const std::string& filename);
 bool file_exists(const std::string& filename);
 bool make_directory(const std::string& path);
 
+// returns a string containing all path separators for this OS
+const std::string& get_path_separators();
+// returns a string containing the prefered path separator for this OS
+const std::string& get_native_path_separator();
+// Joins two paths, ensuring no redundant slashes between left and right
+std::string join_paths(const std::string& left, const std::string& right);
+// Replaces all path separators with native path separator and removes redundant separators
+std::string fix_path(const std::string& path);
+
 // returns a prefix for a game save file, for example: ~/.local/share/flycast/mvsc2.zip
 std::string get_game_save_prefix();
 // returns the position of the last path separator, or string::npos if none

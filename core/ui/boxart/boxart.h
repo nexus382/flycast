@@ -19,6 +19,7 @@
 #pragma once
 #include "scraper.h"
 #include "stdclass.h"
+#include "oslib/oslib.h"
 
 #include <future>
 #include <memory>
@@ -35,14 +36,23 @@ public:
 	GameBoxart getBoxartAndLoad(const GameMedia& media);
 	GameBoxart getBoxart(const GameMedia& media);
 	void term();
+	void scanContentDirectories();
+	std::string getCustomBoxartPath() const {
+		return fix_path(get_writable_data_path(CUSTOM_BOXART_DIRECTORY));
+	}
+
+public:
+	static constexpr const char* CUSTOM_BOXART_DIRECTORY = GameBoxart::CUSTOM_BOXART_DIRECTORY;
 
 private:
 	void loadDatabase();
 	void saveDatabase();
 	std::string getSaveDirectory() const {
-		return get_writable_data_path("/boxart/");
+		return get_writable_data_path("boxart/");
 	}
+	bool checkCustomBoxart(GameBoxart& boxart);
 	void fetchBoxart();
+	void validateCustomBoxartFlags();
 
 	std::unordered_map<std::string, GameBoxart> games;
 	std::mutex mutex;

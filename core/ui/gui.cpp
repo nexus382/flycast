@@ -2341,6 +2341,35 @@ static void gui_settings_general()
 			"Display game cover art in the game list.");
 	OptionCheckbox("Fetch Box Art", config::FetchBoxart,
 			"Fetch cover images from TheGamesDB.net.");
+
+	if (ImGui::TreeNode("Custom Boxart"))
+	{
+		const std::string customDir = get_writable_data_path(Boxart::CUSTOM_BOXART_DIRECTORY) + "/";
+		if (!file_exists(customDir))
+			make_directory(customDir);
+
+		ImGui::TextWrapped("To use custom boxart, place image files in any of the following folders:");
+		ImGui::TextWrapped("Primary location: %s", fix_path(customDir).c_str());
+
+		// Show content directory locations
+		if (!config::ContentPath.get().empty())
+		{
+			ImGui::TextWrapped("Content directory locations:");
+			for (const auto& contentPath : config::ContentPath.get())
+			{
+				const std::string contentDisplayPath = fix_path(join_paths(contentPath, Boxart::CUSTOM_BOXART_DIRECTORY) + "/");
+				ImGui::TextWrapped("  %s", contentDisplayPath.c_str());
+			}
+		}
+
+		ImGui::Separator();
+		ImGui::TextWrapped("Name your image files using the game filename (without extension).");
+		ImGui::TextWrapped("Supported formats: PNG, JPG, JPEG, WEBP");
+		ImGui::TextWrapped("Example: For 'Sonic Adventure.gdi', use 'Sonic Adventure.png'");
+
+		ImGui::TreePop();
+	}
+
 	if (OptionSlider("UI Scaling", config::UIScaling, 50, 200, "Adjust the size of UI elements and fonts.", "%d%%"))
 		uiUserScaleUpdated = true;
 	if (uiUserScaleUpdated)
