@@ -27,16 +27,18 @@
 
 static std::string getCustomBoxartDirectory()
 {
-	std::string customPath = config::CustomBoxartPath.get();
-	if (customPath.empty())
-	{
-		customPath = get_writable_data_path("/boxart/custom/");
-	}
-	else if (customPath.back() != '/' && customPath.back() != '\')
-		customPath += '/';
-	if (!file_exists(customPath))
-		make_directory(customPath);
-	return customPath;
+        std::string customPath = config::CustomBoxartPath.get();
+        if (customPath.empty())
+        {
+                customPath = get_writable_data_path("/boxart/custom/");
+        }
+        else if (customPath.back() != '/' && customPath.back() != '\\')
+        {
+                customPath += '/';
+        }
+        if (!file_exists(customPath))
+                make_directory(customPath);
+        return customPath;
 }
 
 static bool applyCustomBoxart(GameBoxart& boxart)
