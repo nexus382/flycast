@@ -203,15 +203,18 @@ void gui_settings_general()
     }
 #endif
 
-	OptionCheckbox("Box Art Game List", config::BoxartDisplayMode,
-			"Display game cover art in the game list.");
-	OptionCheckbox("Fetch Box Art", config::FetchBoxart,
-			"Fetch cover images from TheGamesDB.net.");
-	if (OptionSlider("UI Scaling", config::UIScaling, 50, 200, "Adjust the size of UI elements and fonts.", "%d%%"))
-		uiUserScaleUpdated = true;
-	if (uiUserScaleUpdated)
-	{
-		ImGui::SameLine();
+        OptionCheckbox("Box Art Game List", config::BoxartDisplayMode,
+                        "Display game cover art in the game list.");
+        OptionCheckbox("Fetch Box Art", config::FetchBoxart,
+                        "Fetch cover images from TheGamesDB.net.");
+        ImGui::InputText("Custom Box Art Folder", &config::CustomBoxartPath.get());
+        ImGui::SameLine();
+        ShowHelpMarker("Override box art with user images in this folder. Use PNG, JPG, or JPEG named after the game file or base name.");
+        if (OptionSlider("UI Scaling", config::UIScaling, 50, 200, "Adjust the size of UI elements and fonts.", "%d%%"))
+                uiUserScaleUpdated = true;
+        if (uiUserScaleUpdated)
+        {
+                ImGui::SameLine();
 		if (ImGui::Button("Apply")) {
 			mainui_reinit();
 			uiUserScaleUpdated = false;
