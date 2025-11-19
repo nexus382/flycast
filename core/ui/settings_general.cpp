@@ -207,11 +207,10 @@ void gui_settings_general()
                         "Display game cover art in the game list.");
         OptionCheckbox("Fetch Box Art", config::FetchBoxart,
                         "Fetch cover images from TheGamesDB.net.");
-        ImGui::TextWrapped("Drop PNG, JPG, or JPEG files named after the game into the custom folder below to override scraped bo"
-                           "x art.");
+        ImGui::TextWrapped("Place PNG or JPG images named exactly as the ROM file's named to update library box art images in new folder. Put folder path below.");
         ImGui::InputText("Custom Box Art Folder", &config::CustomBoxartPath.get());
         ImGui::SameLine();
-        ShowHelpMarker("Override box art with user images in this folder. Use PNG, JPG, or JPEG named after the game file or base name.");
+        ShowHelpMarker("Override box art with user images in this folder. Make a folder and place full path here.");
         if (OptionSlider("UI Scaling", config::UIScaling, 50, 200, "Adjust the size of UI elements and fonts.", "%d%%"))
                 uiUserScaleUpdated = true;
         if (uiUserScaleUpdated)
