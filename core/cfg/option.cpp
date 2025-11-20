@@ -221,7 +221,7 @@ Option<bool> UsePhysicalVmuMemory("UsePhysicalVmuMemory", true);
 Option<std::string, false> LuaFileName("LuaFileName", "flycast.lua");
 #endif
 
-// RetroAchievements
+// Retro Achievements
 
 Option<bool> EnableAchievements("Enabled", false, "achievements");
 Option<bool> AchievementsHardcoreMode("HardcoreMode", false, "achievements");
