@@ -19,7 +19,6 @@ jobs:
         config:
           - {name: x86_64-w64-mingw32, os: windows-latest, shell: 'msys2 {0}', cmakeArgs: -G Ninja -DUSE_DISCORD=ON -DUSE_LIBCDIO=ON, destDir: win, buildType: RelWithDebInfo}
 
-
     steps:
       - name: Set up build environment (macOS)
         run: |
