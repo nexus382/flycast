@@ -36,6 +36,13 @@ static bool isContentUri(const std::string& path)
 #endif
 }
 
+static bool hasTrailingSeparator(const std::string& path)
+{
+	if (path.empty())
+		return false;
+	return path.find_last_of("/\\") == path.size() - 1;
+}
+
 static std::string getCustomBoxartDirectory()
 {
 	std::string customPath = config::CustomBoxartPath.get();
@@ -43,7 +50,7 @@ static std::string getCustomBoxartDirectory()
 	{
 		customPath = get_writable_data_path("/boxart/custom/");
 	}
-	else if (!isContentUri(customPath) && customPath.back() != '/' && customPath.back() != '\')
+	else if (!isContentUri(customPath) && !hasTrailingSeparator(customPath))
 	{
 		customPath += '/';
 	}
