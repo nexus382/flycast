@@ -24,7 +24,10 @@
 
 #include "types.h"
 #include "stdclass.h"
+#include "oslib/oslib.h"
+#include "oslib/directory.h"
 #include "oslib/storage.h"
+#include "oslib/http_client.h"
 #include "imgui_driver.h"
 #include "imgui.h"
 #include "imgui_internal.h"
@@ -767,8 +770,13 @@ void ImguiTexture::draw(ImDrawList *drawList, const ImVec2& pos, const ImVec2& s
 }
 
 bool ImguiTexture::button(const char* str_id, const ImVec2& image_size, const std::string& title,
-		const ImVec4& bg_col, const ImVec4& tint_col)
+		const ImVec4& bg_col, const ImVec4& tint_col, bool forceUpdate)
 {
+	if (forceUpdate)
+	{
+		deleteCache();
+	}
+
 	ImTextureID id = getId();
 	if (id == ImTextureID{})
 		return ImGui::Button(title.c_str(), image_size);
@@ -784,6 +792,20 @@ bool ImguiTexture::button(const char* str_id, const ImVec2& image_size, const st
 
 static u8 *loadImage(const std::string& path, int& width, int& height)
 {
+#ifdef __ANDROID__
+	if (path.rfind("content://", 0) == 0)
+	{
+		FILE *file = hostfs::storage().openFile(path, "rb");
+		if (file == nullptr)
+			return nullptr;
+
+		int channels;
+		stbi_set_flip_vertically_on_load(0);
+		u8 *imgData = stbi_load_from_file(file, &width, &height, &channels, STBI_rgb_alpha);
+		std::fclose(file);
+		return imgData;
+	}
+#endif
 	FILE *file = nowide::fopen(path.c_str(), "rb");
 	if (file == nullptr)
 		return nullptr;
@@ -818,6 +840,13 @@ ImTextureID ImguiFileTexture::getId()
 		}
 	}
 	return id;
+}
+
+void ImguiFileTexture::deleteCache()
+{
+	if (path.empty())
+		return;
+	imguiDriver->deleteTexture(path);
 }
 
 std::future<ImguiStateTexture::LoadedPic> ImguiStateTexture::asyncLoad;
@@ -867,6 +896,12 @@ ImTextureID ImguiStateTexture::getId()
 	return {};
 }
 
+void ImguiStateTexture::deleteCache()
+{
+	std::string path = hostfs::getSavestatePath(config::SavestateSlot, false);
+	imguiDriver->deleteTexture(path);
+}
+
 void ImguiStateTexture::invalidate()
 {
 	if (imguiDriver)
@@ -897,6 +932,13 @@ ImTextureID ImguiVmuTexture::getId()
 		}
 	}
 	return texid;
+}
+
+void ImguiVmuTexture::deleteCache()
+{
+	if (idPath.empty())
+		idPath = ":vmu:" + std::to_string(index);
+	imguiDriver->deleteTexture(idPath);
 }
 
 void ImguiVmuTexture::displayVmus(const ImVec2& pos)

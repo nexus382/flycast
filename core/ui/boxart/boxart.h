@@ -19,6 +19,7 @@
 #pragma once
 #include "scraper.h"
 #include "stdclass.h"
+#include "cfg/option.h"
 
 #include <future>
 #include <memory>
@@ -37,10 +38,17 @@ public:
 	void term();
 
 private:
+	bool applyCustomBoxart(GameBoxart& boxart);
 	void loadDatabase();
 	void saveDatabase();
 	std::string getSaveDirectory() const {
 		// *must* end with a path separator
+		if (!config::BoxartPath.get().empty()) {
+			std::string path = config::BoxartPath.get();
+			if (!path.empty() && path.back() != '/' && path.back() != '\\')
+				path += '/';
+			return path;
+		}
 		return get_writable_data_path("/boxart/");
 	}
 	void fetchBoxart();

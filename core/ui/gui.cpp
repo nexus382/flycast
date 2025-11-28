@@ -68,6 +68,7 @@ std::unique_ptr<ImGuiDriver> imguiDriver;
 static bool inited = false;
 GuiState gui_state = GuiState::Main;
 static bool commandLineStart;
+std::string launchOnExitUri;
 static u32 mouseButtons;
 static int mouseX, mouseY;
 static float mouseWheel;
@@ -701,7 +702,7 @@ static void gui_display_commands()
 		bool hasDisconnectedDreamLink = false;
 		for (auto& dreamlink : DreamLink::activeDreamLinks)
 		{
-			if (dreamlink)
+			if (dreamlink && !dreamlink->isForPhysicalController())
 			{
 				hasAnyDreamLinks = true;
 				if (!dreamlink->isConnected())
@@ -949,9 +950,10 @@ static void gameTooltip(const std::string& tip)
     }
 }
 
-static bool gameImageButton(ImguiTexture& texture, const std::string& tooltip, ImVec2 size, const std::string& gameName)
+static bool gameImageButton(ImguiTexture& texture, const std::string& tooltip, ImVec2 size, const std::string& gameName, bool forceUpdate)
 {
-	bool pressed = texture.button("##imagebutton", size, gameName);
+	bool pressed = texture.button("##imagebutton", size, gameName, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1), forceUpdate);
+
 	gameTooltip(tooltip);
 
     return pressed;
@@ -1096,7 +1098,7 @@ static void gui_display_content()
 						if (ImGui::BeginChild("img", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NavFlattened))
 						{
 							ImguiFileTexture tex(art.boxartPath);
-							pressed = gameImageButton(tex, game.name, responsiveBoxVec2, gameName);
+							pressed = gameImageButton(tex, game.name, responsiveBoxVec2, gameName, art.forceUpdate);
 						}
 						ImGui::EndChild();
 					}
@@ -1278,7 +1280,7 @@ static void gui_network_start()
 			try {
 				networkStatus.get();
 			}
-			catch (const FlycastException& e) {
+			catch (const FlycastException&) {
 			}
 			gui_stop_game();
 		}
@@ -1288,6 +1290,60 @@ static void gui_network_start()
 	if ((kcode[0] & DC_BTN_START) == 0 && NetworkHandshake::instance != nullptr)
 		NetworkHandshake::instance->startNow();
 }
+
+#ifdef TARGET_UWP
+#include "oslib/http_client.h"
+
+static bool checkUWPProtocolActivation()
+{
+	// Check for UWP protocol-activated ROM path
+	static int checkCount = 90; // Try many times - OnAppActivated may not be called yet
+	if (checkCount == 0)
+		return false;
+	checkCount--;
+	char* activationUri = SDL_WinRTGetProtocolActivationURI();
+	if (activationUri == nullptr)
+		return false;
+
+	std::string uri(activationUri);
+	SDL_free(activationUri);
+	INFO_LOG(BOOT, "Protocol activation URI: %s", uri.c_str());
+	size_t qpos = uri.find('?');
+	if (qpos != std::string::npos)
+	{
+		uri = uri.substr(qpos + 1);
+		// Parse launchOnExit parameter
+		size_t exitPos = uri.find("launchOnExit=");
+		if (exitPos != std::string::npos) {
+			exitPos += 13; // Skip "launchOnExit="
+			size_t exitEnd = uri.find('&', exitPos);
+			if (exitEnd == std::string::npos)
+				exitEnd = uri.size();
+			std::string exitUri = uri.substr(exitPos, exitEnd - exitPos);
+			launchOnExitUri = http::urlDecode(exitUri);
+			INFO_LOG(BOOT, "LaunchOnExit URI: %s", launchOnExitUri.c_str());
+			// SDL WinRT will automatically handle launchOnExit from the protocol URI
+		}
+
+		uri = http::urlDecode(uri);
+
+		// Parse ROM path (first quoted string)
+		size_t s = uri.find('"');
+		if (s != std::string::npos)
+		{
+			size_t e = uri.find('"', s + 1);
+			if (e != std::string::npos)
+			{
+				std::string romPath = uri.substr(s + 1, e - (s + 1));
+				commandLineStart = true;
+				gui_start_game(romPath);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+#endif
 
 static void gui_display_loadscreen()
 {
@@ -1358,12 +1414,19 @@ void gui_display_ui()
 		return;
 	if (gui_state == GuiState::Main)
 	{
+#ifdef TARGET_UWP
+		if (checkUWPProtocolActivation())
+			return;
+#endif
 		if (!settings.content.path.empty() || settings.naomi.slave)
 		{
 #ifndef __ANDROID__
 			commandLineStart = true;
 #endif
-			gui_start_game(settings.content.path);
+			if (settings.content.path.substr(0, 7) == "dc_bios")
+				gui_start_game("");
+			else
+				gui_start_game(settings.content.path);
 			return;
 		}
 	}
