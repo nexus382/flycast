@@ -159,16 +159,20 @@ static ImTextureID loadOSDButtons()
 
 ImTextureID ImguiVGamepadTexture::getId()
 {
-	ImTextureID id = imguiDriver->getTexture(getButtonsResPath());
-	if (id == ImTextureID())
-		id = loadOSDButtons();
+        ImTextureID id = imguiDriver->getTexture(getButtonsResPath());
+        if (id == ImTextureID())
+                id = loadOSDButtons();
 
-	return id;
+        return id;
+}
+
+void ImguiVGamepadTexture::deleteCache()
+{
 }
 
 constexpr float vjoy_tex[_Count][4] = {
-	// L
-	{   0,   0,  64,  64 },
+        // L
+        {   0,   0,  64,  64 },
 	// U
 	{  64,   0,  64,  64 },
 	// R

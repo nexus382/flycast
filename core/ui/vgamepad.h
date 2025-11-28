@@ -73,7 +73,8 @@ enum Element
 class ImguiVGamepadTexture : public ImguiTexture
 {
 public:
-	ImTextureID getId() override;
+        ImTextureID getId() override;
+        void deleteCache() override;
 };
 
 #if defined(__ANDROID__) || defined(TARGET_IPHONE)
