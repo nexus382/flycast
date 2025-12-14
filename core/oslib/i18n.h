@@ -20,7 +20,6 @@
 #ifdef __ANDROID__
 #include "android_locale.h"
 #endif
-#include "log/Log.h"
 #include <string>
 #include <time.h>
 #include <locale>
@@ -72,7 +71,14 @@ static inline std::string formatShortDateTime(time_t time)
 
 #endif	// !ANDROID
 
-const std::string& T(const std::string& msg);
-const char *Tcs(const char *msg);
+std::string Ts(const std::string& msg);
+const char *T(const char *msg);
+
+// To mark a string as needing translation only
+#define Tnop(string) ((char *)(string))
+
+const char *translateCtx(const std::string& context, const char *msg);
+
+const char *translatePlural(const char *msg, const char *msgPlural, int num);
 
 }

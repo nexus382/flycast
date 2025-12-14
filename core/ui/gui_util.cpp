@@ -37,6 +37,8 @@
 #include "rend/osd.h"
 #include <stb_image.h>
 
+using namespace i18n;
+
 static std::string select_current_directory = "**home**";
 static std::vector<hostfs::FileInfo> subfolders;
 static std::vector<hostfs::FileInfo> folderFiles;
@@ -49,7 +51,7 @@ void error_popup();
 namespace hostfs
 {
 	bool operator<(const FileInfo& a, const FileInfo& b) {
-		return i18n::locale()(a.name, b.name);
+		return locale()(a.name, b.name);
 	}
 }
 
@@ -116,7 +118,7 @@ void select_file_popup(const char *prompt, StringCallback callback,
 		if (!error_message.empty())
 			title = error_message;
 		else if (select_current_directory.empty())
-			title = "Storage";
+			title = T("Storage");
 		else
 			title = select_current_directory;
 
@@ -128,7 +130,7 @@ void select_file_popup(const char *prompt, StringCallback callback,
 
 			if (!select_current_directory.empty() && select_current_directory != "/")
 			{
-				if (ImGui::Selectable(".. Up to Parent Folder"))
+				if (ImGui::Selectable(T(".. Up to Parent Folder")))
 				{
 					subfolders_read = false;
 					select_current_directory = hostfs::storage().getParentPath(select_current_directory);
@@ -166,7 +168,7 @@ void select_file_popup(const char *prompt, StringCallback callback,
 		ImGui::EndChild();
 		if (!selectFile)
 		{
-			if (ImGui::Button("Select Current Folder", ScaledVec2(0, 30)))
+			if (ImGui::Button(T("Select Current Folder"), ScaledVec2(0, 30)))
 			{
 				if (callback(false, select_current_directory))
 				{
@@ -176,7 +178,7 @@ void select_file_popup(const char *prompt, StringCallback callback,
 			}
 			ImGui::SameLine();
 		}
-		if (ImGui::Button("Cancel", ScaledVec2(0, 30)))
+		if (ImGui::Button(T("Cancel"), ScaledVec2(0, 30)))
 		{
 			subfolders_read = false;
 			callback(true, "");
@@ -474,7 +476,7 @@ const ImWchar* GetGlyphRangesChineseTraditionalOfficial()
 // Helper to display a little (?) mark which shows a tooltip when hovered.
 void ShowHelpMarker(const char* desc)
 {
-    ImGui::TextDisabled("(?)");
+    ImGui::TextDisabled("%s", T("(?)"));
     if (ImGui::IsItemHovered())
     {
         ImGui::BeginTooltip();
@@ -539,14 +541,7 @@ bool OptionArrowButtons(const char *name, config::Option<int>& option, int min, 
 		const float width = ImGui::CalcItemWidth() - innerSpacing * 2.0f - ImGui::GetFrameHeight() * 2.0f;
 		ImguiStyleVar _2(ImGuiStyleVar_DisabledAlpha, 1.0f);
 		ImGui::BeginDisabled();
-		int size = snprintf(nullptr, 0, format, (int)option);
-		std::string value;
-		if (size >= 0)
-		{
-			value.resize(size + 1);
-			snprintf(value.data(), size + 1, format, (int)option);
-			value.resize(size);
-		}
+		std::string value = strprintf(format, (int)option);
 		ImGui::ButtonEx((value + id).c_str(), ImVec2(width, 0));
 		ImGui::EndDisabled();
 	}

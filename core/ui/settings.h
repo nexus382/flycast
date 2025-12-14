@@ -20,6 +20,8 @@
 #include "game_scanner.h"
 #include "gui_util.h"
 #include "imgui.h"
+#include "oslib/i18n.h"
+using namespace i18n;
 
 void gui_display_settings();
 void gui_settings_general();

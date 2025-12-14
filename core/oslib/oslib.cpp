@@ -41,6 +41,7 @@
 #endif
 #include "profiler/fc_profiler.h"
 #include "input/gamepad_device.h"
+#include "i18n.h"
 
 namespace hostfs
 {
@@ -300,7 +301,7 @@ std::string getTextureDumpPath()
 	return get_writable_data_path("texdump/");
 }
 
-#if defined(__unix__) && !defined(__ANDROID__)
+#if (defined(__unix__) && !defined(__ANDROID__)) || defined(__HAIKU__)
 
 static std::string runCommand(const std::string& cmd)
 {
@@ -347,7 +348,7 @@ void saveScreenshot(const std::string& name, const std::vector<u8>& data)
 		StorageFolder^ folder = KnownFolders::PicturesLibrary;	// or SavedPictures?
 		if (folder == nullptr) {
 			INFO_LOG(COMMON, "KnownFolders::PicturesLibrary is null");
-			throw FlycastException("Can't find Pictures library");
+			throw FlycastException(i18n::Ts("Can't find Pictures library"));
 		}
 		nowide::wstackstring wstr;
 		wchar_t *wname = wstr.convert(name.c_str());

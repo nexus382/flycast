@@ -586,7 +586,7 @@ void Emulator::loadGame(const char *path, LoadProgress *progress)
 			{
 				// Boot BIOS
 				if (!nvmem::loadFiles())
-					throw FlycastException("No BIOS file found in " + hostfs::getFlashSavePath("", ""));
+					throw FlycastException(strprintf(i18n::T("No BIOS file found in %s"), hostfs::getFlashSavePath("", "").c_str()));
 				gdr::initDrive("");
 			}
 			else
@@ -602,7 +602,7 @@ void Emulator::loadGame(const char *path, LoadProgress *progress)
 							nvmem::loadHle();
 							NOTICE_LOG(BOOT, "Did not load BIOS, using reios");
 							if (!config::UseReios && config::UseReios.isReadOnly())
-								os_notify(i18n::Tcs("This game requires a real BIOS"), 15000);
+								os_notify(i18n::T("This game requires a real BIOS"), 15000);
 						}
 					}
 					else
@@ -610,7 +610,7 @@ void Emulator::loadGame(const char *path, LoadProgress *progress)
 						// Content load failed. Boot the BIOS
 						settings.content.path.clear();
 						if (!nvmem::loadFiles())
-							throw FlycastException("This media cannot be loaded");
+							throw FlycastException(i18n::Ts("This media cannot be loaded"));
 						gdr::initDrive("");
 					}
 				}
@@ -659,7 +659,7 @@ void Emulator::loadGame(const char *path, LoadProgress *progress)
 		cheatManager.reset(settings.content.gameId);
 		if (cheatManager.isWidescreen())
 		{
-			os_notify(i18n::Tcs("Widescreen cheat activated"), 2000);
+			os_notify(i18n::T("Widescreen cheat activated"), 2000);
 			config::ScreenStretching.override(134);	// 4:3 -> 16:9
 		}
 		// reload settings so that all settings can be overridden
@@ -681,10 +681,10 @@ void Emulator::loadGame(const char *path, LoadProgress *progress)
 		{
 #ifdef GDB_SERVER
 			if(config::GDBWaitForConnection)
-				progress->label = i18n::Tcs("Waiting for debugger...");
+				progress->label = "Waiting for debugger...";
 			else
 #endif
-				progress->label = i18n::Tcs("Starting...");
+				progress->label = i18n::T("Starting...");
 		}
 
 		state = Loaded;
@@ -844,6 +844,8 @@ void loadGameSpecificSettings()
 	{
 		reios_disk_id();
 		settings.content.gameId = trim_trailing_ws(std::string(ip_meta.product_number, sizeof(ip_meta.product_number)));
+		// in case there is a null character followed by garbage, which happens
+		settings.content.gameId = settings.content.gameId.c_str();
 
 		if (settings.content.gameId.empty())
 			return;

@@ -29,6 +29,7 @@
 #include "ui/gui_util.h"
 #include "stdclass.h"
 #include "hw/sh4/sh4_sched.h"
+#include "oslib/i18n.h"
 #include <juice/juice.h>
 #include <cstring>
 #include <memory>
@@ -117,7 +118,7 @@ public:
 				room = "aeroi";
 			// TODO sega tetris, hell gate
 			else
-				throw FlycastException("Game not supported");
+				throw FlycastException(i18n::Ts("Game not supported"));
 			this->username = username;
 		}
 		EventManager::listen(Event::Start, onEmuEvent, this);
@@ -233,7 +234,7 @@ private:
 		std::error_code ec;
 		WsClient::connection_ptr con = wsclient.get_connection("ws://lobby.flyca.st/" + room, ec);
 		if (ec)
-			throw FlycastException("Connection to lobby failed: " + ec.message());
+			throw FlycastException(i18n::Ts("Connection to lobby failed:") + ' ' + ec.message());
 		hdl = con->get_handle();
 		// Set handlers
 		con->set_open_handler([this](websocketpp::connection_hdl hdl)
@@ -440,7 +441,7 @@ private:
 
 		agent = juice_create(&config);
 		if (agent == nullptr)
-			throw FlycastException("Connection failed");
+			throw FlycastException(i18n::Ts("Connection failed"));
 		juice_gather_candidates(agent);
 	}
 
@@ -471,13 +472,13 @@ private:
 			{
 				Lock _(mutex);
 				if (strstr(local, "typ host") != nullptr)
-					statusText = "Direct peer to peer";
+					statusText = i18n::Ts("Direct peer to peer");
 				else if (strstr(local, "typ relay") != nullptr)
-					statusText = "Using relay";
+					statusText = i18n::Ts("Using relay");
 				else
 					// typ srflx: server reflexive (NAT)
 					// typ prflx: peer reflexive (NAT)
-					statusText = "NAT";
+					statusText = i18n::Ts("NAT");
 			}
 			this->state = Playing;
 			setPipe();
@@ -486,7 +487,7 @@ private:
 		}
 		else if (state == JUICE_STATE_FAILED && this->state == Playing)
 		{
-			os_notify("Connection lost", 5000);
+			os_notify(i18n::T("Connection lost"), 5000);
 			if (asioThread != nullptr)
 			{
 				if (matchCode)
@@ -504,7 +505,7 @@ private:
 				this->state = Offline;
 			}
 			Lock _(mutex);
-			statusText = "Connection lost";
+			statusText = i18n::Ts("Connection lost");
 		}
 	}
 
@@ -1034,15 +1035,17 @@ void IceSession::write(u8 data)
 			WARN_LOG(NETWORK, "txBuffer full");
 			flushTxBuffer();
 		}
-		else {
+		else if (icePipe != nullptr) {
 			icePipe->onWrite();
 		}
 	}
 }
 
-void IceSession::onJuiceReceive(const char *data, size_t size) {
+void IceSession::onJuiceReceive(const char *data, size_t size)
+{
 	stat.rxBytes += size;
-	icePipe->receive(data, size);
+	if (icePipe != nullptr)
+		icePipe->receive(data, size);
 }
 
 void IceSession::onEmuEvent(Event event, void *arg)
@@ -1059,7 +1062,8 @@ void IceSession::onEmuEvent(Event event, void *arg)
 	case Event::LoadState:
 		ice->recvQueue.clear();
 		ice->txBufferSize = 0;
-		ice->icePipe->reset();
+		if (ice->icePipe != nullptr)
+			ice->icePipe->reset();
 		break;
 	default:
 		break;

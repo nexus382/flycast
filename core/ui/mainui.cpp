@@ -26,6 +26,7 @@
 #include "emulator.h"
 #include "imgui_driver.h"
 #include "profiler/fc_profiler.h"
+#include "oslib/i18n.h"
 
 #include <chrono>
 #include <thread>
@@ -69,7 +70,7 @@ void mainui_init()
 {
 	if (!rend_init_renderer()) {
 		ERROR_LOG(RENDERER, "Renderer initialization failed");
-		gui_error("Renderer initialization failed.\nPlease select a different graphics API");
+		gui_error(i18n::T("Renderer initialization failed.\nPlease select a different graphics API"));
 	}
 }
 
@@ -102,7 +103,20 @@ void mainui_loop(bool forceStart)
 			int prevApi = isOpenGL(currentRenderer) ? 0 : isVulkan(currentRenderer) ? 1 : currentRenderer == RenderType::DirectX9 ? 2 : 3;
 			int newApi = isOpenGL(config::RendererType) ? 0 : isVulkan(config::RendererType) ? 1 : config::RendererType == RenderType::DirectX9 ? 2 : 3;
 			if (newApi != prevApi || forceReinit)
-				switchRenderApi();
+			{
+				try {
+					switchRenderApi();
+				} catch (const FlycastException& e) {
+					ERROR_LOG(RENDERER, "switchRenderApi failed: %s", e.what());
+					config::RendererType = currentRenderer;
+					try {
+						switchRenderApi();
+					} catch (const FlycastException& e) {
+						ERROR_LOG(RENDERER, "Falling back to previous renderer also failed: %s", e.what());
+						throw;
+					}
+				}
+			}
 			mainui_init();
 			forceReinit = false;
 			currentRenderer = config::RendererType;

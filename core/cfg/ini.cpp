@@ -19,7 +19,6 @@
 #include "ini.h"
 #include "types.h"
 #include "stdclass.h"
-#include <sstream>
 
 namespace config {
 
@@ -84,8 +83,15 @@ int IniFile::getInt(const std::string& section, const std::string& entry, int de
 	const std::string *pValue = getRaw(section, entry);
 	if (pValue == nullptr)
 		return defaultValue;
-	int base = hasHexPrefix(*pValue) ? 16 : 10;
-	return (int)std::stoul(*pValue, nullptr, base);
+	std::istringstream ss(*pValue);
+	ss.imbue(std::locale::classic());
+	if (hasHexPrefix(*pValue))
+		ss.setf(std::ios_base::hex, std::ios_base::basefield);
+	else
+		ss.setf(std::ios_base::dec, std::ios_base::basefield);
+	unsigned value = defaultValue;
+	ss >> value;
+	return (int)value;
 }
 
 int64_t IniFile::getInt64(const std::string& section, const std::string& entry, int64_t defaultValue) const
@@ -93,16 +99,27 @@ int64_t IniFile::getInt64(const std::string& section, const std::string& entry, 
 	const std::string *pValue = getRaw(section, entry);
 	if (pValue == nullptr)
 		return defaultValue;
-	int base = hasHexPrefix(*pValue) ? 16 : 10;
-	return (int64_t)std::stoll(*pValue, nullptr, base);
+	std::istringstream ss(*pValue);
+	ss.imbue(std::locale::classic());
+	if (hasHexPrefix(*pValue))
+		ss.setf(std::ios_base::hex, std::ios_base::basefield);
+	else
+		ss.setf(std::ios_base::dec, std::ios_base::basefield);
+	int64_t value = defaultValue;
+	ss >> value;
+	return value;
 }
 
 float IniFile::getFloat(const std::string& section, const std::string& entry, float defaultValue) const
 {
 	const std::string *pValue = getRaw(section, entry);
-	if (pValue == nullptr)
+	if (pValue == nullptr || pValue->empty())
 		return defaultValue;
-	return std::stof(*pValue);
+	std::istringstream ss(*pValue);
+	ss.imbue(std::locale::classic());
+	float value = defaultValue;
+	ss >> value;
+	return value;
 }
 
 void IniFile::setRaw(const std::string& sectionName, const std::string& entryName, const std::string& value, bool transient)
@@ -141,6 +158,7 @@ static std::string handleEscapeSeq(const std::string& s)
 				ret += '\\';
 				break;
 			default:
+				WARN_LOG(COMMON, "Unrecognized escape sequence [\\%c] in [%s]", s[i], s.c_str());
 				ret += '\\';
 				--i;
 				break;
@@ -155,7 +173,7 @@ static std::string handleEscapeSeq(const std::string& s)
 
 void IniFile::load(const std::string& data, bool cEscape)
 {
-	std::stringstream fss(data);
+	std::istringstream fss(data);
 	int cline = 1;
 	std::string curSection;
 	for (std::string line; std::getline(fss, line); cline++)
@@ -228,7 +246,7 @@ void IniFile::load(FILE *file, bool cEscape)
 
 void IniFile::save(std::string& data) const
 {
-	std::stringstream ss;
+	std::ostringstream ss;
 	for (const auto& [sectionName, section] : sections)
 	{
 		if (!sectionName.empty())

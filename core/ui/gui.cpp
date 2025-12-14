@@ -570,7 +570,7 @@ void gui_stop_game(const std::string& message)
 		gui_setState(GuiState::Main);
 		reset_vmus();
 		if (!message.empty())
-			gui_error(T("Flycast has stopped.") + "\n\n" + message);
+			gui_error(Ts("Flycast has stopped.") + "\n\n" + message);
 	}
 	else
 	{
@@ -675,7 +675,7 @@ static void gui_display_commands()
 		ImguiStyleVar _1{ImGuiStyleVar_FramePadding, ScaledVec2(12.f, 3.f)};
 
 		// Resume
-		if (ImGui::Button((ICON_FA_PLAY "  " + T("Resume")).c_str(), ScaledVec2(buttonWidth, 50)))
+		if (IconButton(ICON_FA_PLAY, T("Resume"), ScaledVec2(buttonWidth, 50)).realize())
 		{
 			GamepadDevice::load_system_mappings();
 			gui_setState(GuiState::Closed);
@@ -684,20 +684,20 @@ static void gui_display_commands()
 		{
 			DisabledScope _{settings.network.online || settings.raHardcoreMode};
 
-			if (ImGui::Button((ICON_FA_MASK "  " + T("Cheats")).c_str(), ScaledVec2(buttonWidth, 50)) && !settings.network.online)
+			if (IconButton(ICON_FA_MASK, T("Cheats"), ScaledVec2(buttonWidth, 50)).realize() && !settings.network.online)
 				gui_setState(GuiState::Cheats);
 		}
 		// Achievements
 		{
 			DisabledScope _{!achievements::isActive()};
 
-			if (ImGui::Button((ICON_FA_TROPHY "  " + T("Achievements")).c_str(), ScaledVec2(buttonWidth, 50)) && achievements::isActive())
+			if (IconButton(ICON_FA_TROPHY, T("Achievements"), ScaledVec2(buttonWidth, 50)).realize() && achievements::isActive())
 				gui_setState(GuiState::Achievements);
 		}
 		// Barcode
 		if (card_reader::barcodeAvailable())
 		{
-			ImGui::Text("%s", Tcs("Barcode Card"));
+			ImGui::Text("%s", T("Barcode Card"));
 			char cardBuf[64] {};
 			strncpy(cardBuf, card_reader::barcodeGetCard().c_str(), sizeof(cardBuf) - 1);
 			ImGui::SetNextItemWidth(uiScaled(buttonWidth));
@@ -726,7 +726,7 @@ static void gui_display_commands()
 		{
 			if (hasDisconnectedDreamLink)
 			{
-				if (ImGui::Button(Tcs("Connect DreamLink"), ScaledVec2(buttonWidth, 50)))
+				if (ImGui::Button(T("Connect DreamLink"), ScaledVec2(buttonWidth, 50)))
 				{
 					if (reconnectDreamLinks())
 						maple_ReconnectDevices();
@@ -734,7 +734,7 @@ static void gui_display_commands()
 			}
 			else
 			{
-				if (ImGui::Button(Tcs("Disconnect\nDreamLink"), ScaledVec2(buttonWidth, 50)))
+				if (ImGui::Button(T("Disconnect\nDreamLink"), ScaledVec2(buttonWidth, 50)))
 				{
 					for (auto& dreamlink : DreamLink::activeDreamLinks)
 					{
@@ -749,7 +749,7 @@ static void gui_display_commands()
 				auto dreamlink = DreamLink::activeDreamLinks[i];
 				if (dreamlink)
 				{
-					ImGui::Text("%s %c: %s", Tcs("Port"), 'A' + i, dreamlink->isConnected() ? Tcs("Connected") : Tcs("Disconnected"));
+					ImGui::Text("%s %c: %s", T("Port"), 'A' + i, dreamlink->isConnected() ? T("Connected") : T("Disconnected"));
 				}
 			}
 		}
@@ -758,8 +758,8 @@ static void gui_display_commands()
 		ImGui::NextColumn();
 
 		// Insert/Eject Disk
-		std::string disk_label = gdr::isOpen() ? ICON_FA_COMPACT_DISC "  " + T("Insert Disk") : ICON_FA_COMPACT_DISC "  " + T("Eject Disk");
-		if (ImGui::Button(disk_label.c_str(), ScaledVec2(buttonWidth, 50)))
+		std::string disk_label = gdr::isOpen() ? T("Insert Disk") : T("Eject Disk");
+		if (IconButton(ICON_FA_COMPACT_DISC, disk_label, ScaledVec2(buttonWidth, 50)).realize())
 		{
 			if (gdr::isOpen()) {
 				gui_setState(GuiState::SelectDisk);
@@ -770,11 +770,11 @@ static void gui_display_commands()
 			}
 		}
 		// Settings
-		if (ImGui::Button((ICON_FA_GEAR "  " + T("Settings")).c_str(), ScaledVec2(buttonWidth, 50)))
+		if (IconButton(ICON_FA_GEAR, T("Settings"), ScaledVec2(buttonWidth, 50)).realize())
 			gui_setState(GuiState::Settings);
 
 		// Exit
-		if (ImGui::Button(commandLineStart ? (ICON_FA_POWER_OFF "  " + T("Exit")).c_str() : (ICON_FA_POWER_OFF "  " + T("Close Game")).c_str(), ScaledVec2(buttonWidth, 50)))
+		if (IconButton(ICON_FA_POWER_OFF, commandLineStart ?  T("Exit") : T("Close Game"), ScaledVec2(buttonWidth, 50)).realize())
 			gui_stop_game();
 
 		ImGui::NextColumn();
@@ -786,7 +786,7 @@ static void gui_display_commands()
 			// Load State
 			{
 				DisabledScope _{settings.raHardcoreMode || savestateDate == 0};
-				if (ImGui::Button((ICON_FA_CLOCK_ROTATE_LEFT "  " + T("Load State")).c_str(), ScaledVec2(buttonWidth, 50)) && savestateAllowed())
+				if (IconButton(ICON_FA_CLOCK_ROTATE_LEFT, T("Load State"), ScaledVec2(buttonWidth, 50)).realize() && savestateAllowed())
 				{
 					gui_setState(GuiState::Closed);
 					dc_loadstate(config::SavestateSlot);
@@ -794,7 +794,7 @@ static void gui_display_commands()
 			}
 
 			// Save State
-			if (ImGui::Button((ICON_FA_DOWNLOAD "  " + T("Save State")).c_str(), ScaledVec2(buttonWidth, 50)) && savestateAllowed())
+			if (IconButton(ICON_FA_DOWNLOAD, T("Save State"), ScaledVec2(buttonWidth, 50)).realize() && savestateAllowed())
 			{
 				gui_setState(GuiState::Closed);
 				savestate();
@@ -809,9 +809,7 @@ static void gui_display_commands()
 					config::SavestateSlot--;
 				SaveSettings();
 			}
-			std::string slot;
-			slot.resize(128);
-			slot.resize(snprintf(slot.data(), slot.capacity(), Tcs("Slot %d"), (int)config::SavestateSlot + 1));
+			std::string slot = strprintf(T("Slot %d"), (int)config::SavestateSlot + 1);
 			float spacingW = (uiScaled(buttonWidth) - ImGui::GetFrameHeight() * 2 - ImGui::CalcTextSize(slot.c_str()).x) / 2;
 			ImGui::SameLine(0, spacingW);
 			ImGui::Text("%s", slot.c_str());
@@ -827,7 +825,7 @@ static void gui_display_commands()
 			{
 				ImVec4 gray(0.75f, 0.75f, 0.75f, 1.f);
 				if (savestateDate == 0)
-					ImGui::TextColored(gray, "%s", Tcs("Empty"));
+					ImGui::TextColored(gray, "%s", T("Empty"));
 				else
 					ImGui::TextColored(gray, "%s", timeToShortDateTimeString(savestateDate).c_str());
 			}
@@ -855,7 +853,7 @@ void error_popup()
 				ImguiStyleVar _(ImGuiStyleVar_FramePadding, ScaledVec2(16, 3));
 				float currentwidth = ImGui::GetContentRegionAvail().x;
 				ImGui::SetCursorPosX((currentwidth - uiScaled(80.f)) / 2.f + ImGui::GetStyle().WindowPadding.x);
-				if (ImGui::Button(Tcs("OK"), ScaledVec2(80.f, 0)))
+				if (ImGui::Button(T("OK"), ScaledVec2(80.f, 0)))
 				{
 					error_msg.clear();
 					ImGui::CloseCurrentPopup();
@@ -875,16 +873,16 @@ static void contentpath_warning_popup()
 
     if (scanner.content_path_looks_incorrect)
     {
-        ImGui::OpenPopup(Tcs("Incorrect Content Location?"));
-        if (ImGui::BeginPopupModal(Tcs("Incorrect Content Location?"), NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
+        ImGui::OpenPopup(T("Incorrect Content Location?"));
+        if (ImGui::BeginPopupModal(T("Incorrect Content Location?"), NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
         {
             ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + uiScaled(400.f));
-            ImGui::TextWrapped(("  " + T("Scanned %d folders but no game can be found!") + "  ").c_str(), scanner.empty_folders_scanned);
+            ImGui::TextWrapped((std::string("  ") + T("Scanned %d folders but no game can be found!") + std::string("  ")).c_str(), scanner.empty_folders_scanned);
 			{
 				ImguiStyleVar _(ImGuiStyleVar_FramePadding, ScaledVec2(16, 3));
 				float currentwidth = ImGui::GetContentRegionAvail().x;
 				ImGui::SetCursorPosX((currentwidth - uiScaled(100.f)) / 2.f + ImGui::GetStyle().WindowPadding.x - uiScaled(55.f));
-				if (ImGui::Button(Tcs("Reselect"), ScaledVec2(100.f, 0)))
+				if (ImGui::Button(T("Reselect"), ScaledVec2(100.f, 0)))
 				{
 					scanner.content_path_looks_incorrect = false;
 					ImGui::CloseCurrentPopup();
@@ -893,7 +891,7 @@ static void contentpath_warning_popup()
 
 				ImGui::SameLine();
 				ImGui::SetCursorPosX((currentwidth - uiScaled(100.f)) / 2.f + ImGui::GetStyle().WindowPadding.x + uiScaled(55.f));
-				if (ImGui::Button(Tcs("Cancel"), ScaledVec2(100.f, 0)))
+				if (ImGui::Button(T("Cancel"), ScaledVec2(100.f, 0)))
 				{
 					scanner.content_path_looks_incorrect = false;
 					ImGui::CloseCurrentPopup();
@@ -908,7 +906,7 @@ static void contentpath_warning_popup()
     if (show_contentpath_selection)
     {
         scanner.stop();
-        const char *title = Tcs("Select a Content Folder");
+        const char *title = T("Select a Content Folder");
         ImGui::OpenPopup(title);
         select_file_popup(title, [](bool cancelled, std::string selection)
         {
@@ -1016,41 +1014,42 @@ static void gui_display_content()
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ScaledVec2(20, 8));
     ImGui::AlignTextToFramePadding();
     ImGui::Indent(uiScaled(10));
-    ImGui::Text("%s", Tcs("GAMES"));
+    ImGui::Text("%s", T("GAMES"));
     ImGui::Unindent(uiScaled(10));
 
     static ImGuiTextFilter filter;
-    const float settingsBtnW = iconButtonWidth(ICON_FA_GEAR, T("Settings"));
+    IconButton settingsBtn(ICON_FA_GEAR, T("Settings"));
 #if !defined(__ANDROID__) && !defined(TARGET_IPHONE) && !defined(TARGET_UWP) && !defined(__SWITCH__)
 	ImGui::SameLine(0, uiScaled(32));
-	filter.Draw(Tcs("Filter"), ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x - uiScaled(32)
-			- settingsBtnW - ImGui::GetStyle().ItemSpacing.x);
+	filter.Draw(T("Filter"), ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x - uiScaled(32)
+			- settingsBtn.width() - ImGui::GetStyle().ItemSpacing.x);
 #endif
     if (gui_state != GuiState::SelectDisk)
     {
 #ifdef TARGET_UWP
-		ImGui::SameLine(ImGui::GetContentRegionMax().x - settingsBtnW
-				- ImGui::GetStyle().FramePadding.x * 2.0f  - ImGui::GetStyle().ItemSpacing.x - ImGui::CalcTextSize(Tcs("Load...")).x);
-		if (ImGui::Button(Tcs("Load...")))
+		ImGui::SameLine(ImGui::GetContentRegionMax().x - settingsBtn.width()
+				- ImGui::GetStyle().FramePadding.x * 2.0f  - ImGui::GetStyle().ItemSpacing.x - ImGui::CalcTextSize(T("Load...")).x);
+		if (ImGui::Button(T("Load...")))
 			gui_load_game();
 		ImGui::SameLine();
 #elif defined(__SWITCH__)
-		ImGui::SameLine(ImGui::GetContentRegionMax().x - settingsBtnW
-				- ImGui::GetStyle().ItemSpacing.x - iconButtonWidth(ICON_FA_POWER_OFF, T("Exit")));
-		if (iconButton(ICON_FA_POWER_OFF, T("Exit")))
+		IconButton exitBtn(ICON_FA_POWER_OFF, T("Exit"));
+		ImGui::SameLine(ImGui::GetContentRegionMax().x - settingsBtn.width()
+				- ImGui::GetStyle().ItemSpacing.x - exitBtn.width());
+		if (exitBtn.realize())
 			dc_exit();
 		ImGui::SameLine();
 #else
-		ImGui::SameLine(ImGui::GetContentRegionMax().x - settingsBtnW);
+		ImGui::SameLine(ImGui::GetContentRegionMax().x - settingsBtn.width());
 #endif
-		if (iconButton(ICON_FA_GEAR, T("Settings")))
+		if (settingsBtn.realize())
 			gui_setState(GuiState::Settings);
     }
     else
     {
-		ImGui::SameLine(ImGui::GetContentRegionMax().x
-				- ImGui::GetStyle().FramePadding.x * 2.0f - ImGui::CalcTextSize(Tcs("Cancel")).x);
-		if (ImGui::Button(Tcs("Cancel")))
+    	IconButton cancelBtn(T("Cancel"));
+		ImGui::SameLine(ImGui::GetContentRegionMax().x - cancelBtn.width());
+		if (cancelBtn.realize())
 			gui_setState(GuiState::Commands);
     }
     ImGui::PopStyleVar();
@@ -1149,7 +1148,7 @@ static void gui_display_content()
 #if !defined(TARGET_IPHONE)
 		if (gameListEmpty && gui_state != GuiState::SelectDisk)
 		{
-			const char *label = Tcs("Your game list is empty");
+			const char *label = T("Your game list is empty");
 			// center horizontally
 			const float w = largeFont->CalcTextSizeA(largeFont->LegacySize, FLT_MAX, -1.f, label).x + ImGui::GetStyle().FramePadding.x * 2;
 			ImGui::SameLine((ImGui::GetContentRegionMax().x - w) / 2);
@@ -1159,7 +1158,7 @@ static void gui_display_content()
 				ImGui::NewLine();
 				ImGui::Text("%s", label);
 				ImguiStyleVar _(ImGuiStyleVar_FramePadding, ScaledVec2(20, 8));
-				addContent = ImGui::Button(Tcs("Add Game Folder"));
+				addContent = ImGui::Button(T("Add Game Folder"));
 				ImGui::PopFont();
 			}
 			ImGui::EndChild();
@@ -1191,7 +1190,7 @@ static bool systemdir_selected_callback(bool cancelled, std::string selection)
 		if (!make_directory(data_path))
 		{
 			WARN_LOG(BOOT, "Cannot create 'data' directory: %s", data_path.c_str());
-			gui_error(T("Invalid selection:") + '\n' + T("Flycast cannot write to this folder."));
+			gui_error(Ts("Invalid selection:") + '\n' + Ts("Flycast cannot write to this folder."));
 			return false;
 		}
 	}
@@ -1202,7 +1201,7 @@ static bool systemdir_selected_callback(bool cancelled, std::string selection)
 	if (file == nullptr)
 	{
 		WARN_LOG(BOOT, "Cannot write in the 'data' directory");
-		gui_error(T("Invalid selection:") + '\n' + T("Flycast cannot write to this folder."));
+		gui_error(Ts("Invalid selection:") + '\n' + Ts("Flycast cannot write to this folder."));
 		return false;
 	}
 	fclose(file);
@@ -1230,7 +1229,7 @@ static bool systemdir_selected_callback(bool cancelled, std::string selection)
 
 static void gui_display_onboarding()
 {
-	const char *title = Tcs("Select Flycast Home Folder");
+	const char *title = T("Select Flycast Home Folder");
 	ImGui::OpenPopup(title);
 	select_file_popup(title, &systemdir_selected_callback);
 }
@@ -1264,7 +1263,7 @@ static void gui_network_start()
 
 		if (networkStatus.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
 		{
-			ImGui::Text("%s", Tcs("Starting..."));
+			ImGui::Text("%s", T("Starting..."));
 			try {
 				if (networkStatus.get())
 					gui_setState(GuiState::Closed);
@@ -1276,15 +1275,15 @@ static void gui_network_start()
 		}
 		else
 		{
-			ImGui::Text("%s", Tcs("Starting Network..."));
+			ImGui::Text("%s", T("Starting Network..."));
 			if (NetworkHandshake::instance->canStartNow())
-				ImGui::TextWrapped("%s", Tcs("Press Start to start the game now."));
+				ImGui::TextWrapped("%s", T("Press Start to start the game now."));
 		}
 		ImGui::Text("%s", get_notification().c_str());
 
 		float currentwidth = ImGui::GetContentRegionAvail().x;
 		ImGui::SetCursorPosX((currentwidth - uiScaled(100.f)) / 2.f + ImGui::GetStyle().WindowPadding.x);
-		if (ImGui::Button(Tcs("Cancel"), ScaledVec2(100.f, 0)) && NetworkHandshake::instance != nullptr)
+		if (ImGui::Button(T("Cancel"), ScaledVec2(100.f, 0)) && NetworkHandshake::instance != nullptr)
 		{
 			NetworkHandshake::instance->stop();
 			try {
@@ -1373,9 +1372,9 @@ static void gui_display_loadscreen()
 			if (label == nullptr)
 			{
 				if (gameLoader.ready())
-					label = Tcs("Starting...");
+					label = T("Starting...");
 				else
-					label = Tcs("Loading...");
+					label = T("Loading...");
 			}
 			
 			const bool customTexPreloading = custom_texture.isPreloading();
@@ -1411,10 +1410,10 @@ static void gui_display_loadscreen()
 				else if (customTexPreloading)
 				{
 					ImGui::Spacing();
-					ImGui::Text("%s", Tcs("Preloading custom textures"));
+					ImGui::Text("%s", T("Preloading custom textures"));
 					progress = (texTotal == -1 || texTotal == 0) ? 0.f : (float)texLoaded / (float)texTotal;
 					if (texTotal == -1)
-						snprintf(overlay, sizeof(overlay), "%s", Tcs("Preparing..."));
+						snprintf(overlay, sizeof(overlay), "%s", T("Preparing..."));
 					else
 					{
 						float loaded_size_mb = (float)loaded_size_b / (1024 * 1024);
@@ -1427,7 +1426,7 @@ static void gui_display_loadscreen()
 
 				float currentwidth = ImGui::GetContentRegionAvail().x;
 				ImGui::SetCursorPosX((currentwidth - uiScaled(100.f)) / 2.f + ImGui::GetStyle().WindowPadding.x);
-				if (ImGui::Button(Tcs("Cancel"), ScaledVec2(100.f, 0)))
+				if (ImGui::Button(T("Cancel"), ScaledVec2(100.f, 0)))
 					gameLoader.cancel();
 			}
 		} catch (const FlycastException& ex) {
@@ -1667,7 +1666,7 @@ void fatal_error(const char* text, ...)
     va_end(args);
     ERROR_LOG(COMMON, "%s", temp);
 
-    os_notify(Tcs("Fatal Error"), 20000, temp);
+    os_notify("Fatal Error", 20000, temp);
 }
 
 extern bool subfolders_read;
@@ -1760,15 +1759,15 @@ void gui_takeScreenshot()
 		std::vector<u8> data;
 		getScreenshot(data);
 		if (data.empty()) {
-			os_notify(Tcs("No screenshot available"), 2000);
+			os_notify(T("No screenshot available"), 2000);
 		}
 		else
 		{
 			try {
 				hostfs::saveScreenshot(name, data);
-				os_notify(Tcs("Screenshot saved"), 2000, name.c_str());
+				os_notify(T("Screenshot saved"), 2000, name.c_str());
 			} catch (const FlycastException& e) {
-				os_notify(Tcs("Error saving screenshot"), 5000, e.what());
+				os_notify(T("Error saving screenshot"), 5000, e.what());
 			}
 		}
 	});

@@ -43,7 +43,7 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD" OR NINTENDO_SWITCH)
+if(CMAKE_SYSTEM_NAME MATCHES "(NetBSD|Haiku)" OR NINTENDO_SWITCH)
 	set(CMAKE_CXX_EXTENSIONS ON)
 else()
 	set(CMAKE_CXX_EXTENSIONS OFF)
@@ -56,7 +56,7 @@ endif()
 message(STATUS "Target architecture: ${ARCHITECTURE}")
 
 set(USE_HOST_SDL_DEFAULT OFF)
-if(NOT APPLE AND (NOT UNIX OR CMAKE_SYSTEM_NAME MATCHES "(FreeBSD|OpenBSD|NetBSD)"))
+if(NOT APPLE AND (NOT UNIX OR CMAKE_SYSTEM_NAME MATCHES "(FreeBSD|OpenBSD|NetBSD|Haiku)"))
 	set(USE_HOST_SDL_DEFAULT ON)
 endif()
 
@@ -99,6 +99,7 @@ include(CMakeRC)
 
 if(ENABLE_CTEST)
 	include(CTest)
+	add_compile_definitions(FLYCAST_TEST_FILES="${CMAKE_CURRENT_SOURCE_DIR}/tests/files")
 endif()
 
 if(IOS AND NOT LIBRETRO)
@@ -175,7 +176,9 @@ elseif(LIBRETRO)
 		endif()
 		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-exported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/shell/libretro/libretro.osx.def")
 	else()
-		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+		if(NOT CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")
+			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+		endif()
 	endif()
 	set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "flycast_libretro"
 	  XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
@@ -206,6 +209,14 @@ elseif(LIBRETRO)
 			target_link_libraries(${PROJECT_NAME} PRIVATE "-lGLESv2")
 		endif()
 	elseif(USE_OPENGL)
+		if (CMAKE_SYSTEM_NAME MATCHES "(OpenBSD|NetBSD)")
+			find_package(OpenGL REQUIRED)
+			if(CMAKE_VERSION VERSION_LESS 3.29.0)
+				target_include_directories(${PROJECT_NAME} PRIVATE ${OPENGL_INCLUDE_DIR})
+			else()
+				target_include_directories(${PROJECT_NAME} PRIVATE ${OPENGL_INCLUDE_DIRS})
+			endif()
+		endif()
 		target_compile_definitions(${PROJECT_NAME} PRIVATE HAVE_OPENGL)
 		if(APPLE)
 			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-framework,OpenGL")
@@ -463,7 +474,7 @@ if(NOT LIBRETRO)
 			if (WINDOWS_STORE)
 				# Use winrt implementation of the DreamPicoPort-API
 				option(DREAMPICOPORT_WITH_LIBUSB "Use libusb to access DreamPicoPort-API" OFF)
-			elseif (CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+			elseif (CMAKE_SYSTEM_NAME MATCHES "(FreeBSD|Haiku)")
 				# A version of libusb is installed in FreeBSD
 				find_package(PkgConfig REQUIRED)
    	 			pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
@@ -472,7 +483,7 @@ if(NOT LIBRETRO)
 				set(DREAMPICOPORT_LIBUSB_INCLUDE_DIRS "${LIBUSB_INCLUDE_DIRS}" CACHE STRING "Path to libusb include directory, when applicable")
 			else()
 				# libusb
-				add_subdirectory(core/deps/libusb-cmake)
+				add_subdirectory(core/deps/DreamPicoPort-API/ext/libusb-cmake)
 			endif()
 
 			# DreamPicoPort-API
@@ -772,6 +783,11 @@ if(NOT LIBRETRO AND NOT NINTENDO_SWITCH)
 	endif()
 endif()
 
+set(TINYGETTEXT_WO_ICONV ON)
+add_subdirectory(core/deps/tinygettext EXCLUDE_FROM_ALL)
+target_include_directories(${PROJECT_NAME} PRIVATE core/deps/tinygettext/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE tinygettext::tinygettext)
+
 target_include_directories(${PROJECT_NAME} PRIVATE core/deps/picotcp/include core/deps/picotcp/modules)
 target_sources(${PROJECT_NAME} PRIVATE
 		core/deps/picotcp/include/arch/pico_arm9.h
@@ -837,7 +853,10 @@ target_sources(${PROJECT_NAME} PRIVATE core/deps/lzma/7zArcIn.c core/deps/lzma/7
 add_subdirectory(core/deps/libelf)
 target_link_libraries(${PROJECT_NAME} PRIVATE elf)
 if(NOT LIBRETRO)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_DISABLE_DEMO_WINDOWS IMGUI_DEFINE_MATH_OPERATORS)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE
+		IMGUI_DISABLE_DEMO_WINDOWS
+		IMGUI_DISABLE_DEBUG_TOOLS
+		IMGUI_DEFINE_MATH_OPERATORS)
 	target_include_directories(${PROJECT_NAME} PRIVATE core/deps/imgui core/deps/imgui/backends)
 	target_sources(${PROJECT_NAME} PRIVATE
 		core/deps/imgui/imgui.cpp
