@@ -239,25 +239,39 @@ void gui_display_settings()
     	}
        	SaveSettings();
     }
-	if (game_started)
-	{
-	    ImGui::SameLine();
-		ImguiStyleVar _(ImGuiStyleVar_FramePadding, ImVec2(uiScaled(16), normal_padding.y));
-		if (config::Settings::instance().hasPerGameConfig())
-		{
-			if (ImGui::Button(T("Delete Game Config"), ScaledVec2(0, 30)))
-			{
-				config::Settings::instance().setPerGameConfig(false);
-				config::Settings::instance().load(false);
-				loadGameSpecificSettings();
-			}
-		}
-		else
-		{
-			if (ImGui::Button(T("Make Game Config"), ScaledVec2(0, 30)))
-				config::Settings::instance().setPerGameConfig(true);
-		}
-	}
+        if (game_started)
+        {
+            ImGui::SameLine();
+                ImguiStyleVar _(ImGuiStyleVar_FramePadding, ImVec2(uiScaled(16), normal_padding.y));
+                if (config::Settings::instance().hasPerGameConfig())
+                {
+                        if (ImGui::Button(T("Delete Game Config"), ScaledVec2(0, 30)))
+                        {
+                                config::Settings::instance().setPerGameConfig(false);
+                                config::Settings::instance().load(false);
+                                loadGameSpecificSettings();
+                        }
+                }
+                else
+                {
+                        if (ImGui::Button(T("Make Game Config"), ScaledVec2(0, 30)))
+                                config::Settings::instance().setPerGameConfig(true);
+                }
+        }
+
+        ImGui::SameLine();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("%s", T("View"));
+        ImGui::SameLine();
+        bool advancedSettings = getSettingDetail() == SettingDetail::Advanced;
+        const std::string basicLabel = std::string(T("Basic")) + "##settingsView";
+        const std::string advancedLabel = std::string(T("Advanced")) + "##settingsView";
+        if (ImGui::RadioButton(basicLabel.c_str(), !advancedSettings))
+                setSettingDetail(SettingDetail::Basic);
+        ImGui::SameLine();
+        if (ImGui::RadioButton(advancedLabel.c_str(), advancedSettings))
+                setSettingDetail(SettingDetail::Advanced);
+        advancedSettings = getSettingDetail() == SettingDetail::Advanced;
 
 	if (ImGui::GetContentRegionAvail().x >= uiScaled(650.f))
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ScaledVec2(16, 6));
@@ -297,17 +311,17 @@ void gui_display_settings()
 			gui_settings_network();
 			ImGui::EndTabItem();
 		}
-		if (beginTabItem(ICON_FA_MICROCHIP, T("Advanced")))
-		{
-			ImguiStyleVar _(ImGuiStyleVar_FramePadding, normal_padding);
-			gui_settings_advanced();
-			ImGui::EndTabItem();
-		}
+                if (advancedSettings && beginTabItem(ICON_FA_MICROCHIP, T("Advanced")))
+                {
+                        ImguiStyleVar _(ImGuiStyleVar_FramePadding, normal_padding);
+                        gui_settings_advanced();
+                        ImGui::EndTabItem();
+                }
 #if !defined(NDEBUG) || defined(DEBUGFAST) || FC_PROFILER
-		if (beginTabItem(ICON_FA_BUG, "Debug"))
-		{
-			ImguiStyleVar _(ImGuiStyleVar_FramePadding, normal_padding);
-			gui_debug_tab();
+                if (advancedSettings && beginTabItem(ICON_FA_BUG, "Debug"))
+                {
+                        ImguiStyleVar _(ImGuiStyleVar_FramePadding, normal_padding);
+                        gui_debug_tab();
 			ImGui::EndTabItem();
 		}
 #endif

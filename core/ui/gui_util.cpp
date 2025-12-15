@@ -43,6 +43,7 @@ static std::string select_current_directory = "**home**";
 static std::vector<hostfs::FileInfo> subfolders;
 static std::vector<hostfs::FileInfo> folderFiles;
 bool subfolders_read;
+static SettingDetail currentSettingDetail = SettingDetail::Basic;
 
 extern int insetLeft, insetRight, insetTop, insetBottom;
 extern ImFont *largeFont;
@@ -53,6 +54,21 @@ namespace hostfs
 	bool operator<(const FileInfo& a, const FileInfo& b) {
 		return locale()(a.name, b.name);
 	}
+}
+
+void setSettingDetail(SettingDetail detail)
+{
+        currentSettingDetail = detail;
+}
+
+SettingDetail getSettingDetail()
+{
+        return currentSettingDetail;
+}
+
+bool isSettingVisible(SettingDetail detail)
+{
+        return currentSettingDetail == SettingDetail::Advanced || detail == SettingDetail::Basic;
 }
 
 void select_file_popup(const char *prompt, StringCallback callback,
@@ -488,11 +504,13 @@ void ShowHelpMarker(const char* desc)
 }
 
 template<bool PerGameOption>
-bool OptionCheckbox(const char *name, config::Option<bool, PerGameOption>& option, const char *help)
+bool OptionCheckbox(const char *name, config::Option<bool, PerGameOption>& option, const char *help, SettingDetail detail)
 {
-	bool pressed;
-	{
-		DisabledScope scope(option.isReadOnly());
+        if (!isSettingVisible(detail))
+                return false;
+        bool pressed;
+        {
+                DisabledScope scope(option.isReadOnly());
 
 		bool b = option;
 		pressed = ImGui::Checkbox(name, &b);
@@ -506,15 +524,17 @@ bool OptionCheckbox(const char *name, config::Option<bool, PerGameOption>& optio
 	}
 	return pressed;
 }
-template bool OptionCheckbox(const char *name, config::Option<bool, true>& option, const char *help);
-template bool OptionCheckbox(const char *name, config::Option<bool, false>& option, const char *help);
+template bool OptionCheckbox(const char *name, config::Option<bool, true>& option, const char *help, SettingDetail detail);
+template bool OptionCheckbox(const char *name, config::Option<bool, false>& option, const char *help, SettingDetail detail);
 
 template<bool PerGameOption>
-bool OptionSlider(const char *name, config::Option<int, PerGameOption>& option, int min, int max, const char *help, const char *format)
+bool OptionSlider(const char *name, config::Option<int, PerGameOption>& option, int min, int max, const char *help, const char *format, SettingDetail detail)
 {
-	bool valueChanged;
-	{
-		DisabledScope scope(option.isReadOnly());
+        if (!isSettingVisible(detail))
+                return false;
+        bool valueChanged;
+        {
+                DisabledScope scope(option.isReadOnly());
 
 		int v = option;
 		valueChanged = ImGui::SliderInt(name, &v, min, max, format);
@@ -528,13 +548,15 @@ bool OptionSlider(const char *name, config::Option<int, PerGameOption>& option, 
 	}
 	return valueChanged;
 }
-template bool OptionSlider(const char *name, config::Option<int, true>& option, int min, int max, const char *help, const char *format);
-template bool OptionSlider(const char *name, config::Option<int, false>& option, int min, int max, const char *help, const char *format);
+template bool OptionSlider(const char *name, config::Option<int, true>& option, int min, int max, const char *help, const char *format, SettingDetail detail);
+template bool OptionSlider(const char *name, config::Option<int, false>& option, int min, int max, const char *help, const char *format, SettingDetail detail);
 
-bool OptionArrowButtons(const char *name, config::Option<int>& option, int min, int max, const char *help, const char *format)
+bool OptionArrowButtons(const char *name, config::Option<int>& option, int min, int max, const char *help, const char *format, SettingDetail detail)
 {
-	const float innerSpacing = ImGui::GetStyle().ItemInnerSpacing.x;
-	const std::string id = "##" + std::string(name);
+        if (!isSettingVisible(detail))
+                return false;
+        const float innerSpacing = ImGui::GetStyle().ItemInnerSpacing.x;
+        const std::string id = "##" + std::string(name);
 	{
 		ImguiStyleVar _(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.f, 0.5f)); // Left
 		ImguiStyleColor _1(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_FrameBg]);
@@ -568,11 +590,13 @@ bool OptionArrowButtons(const char *name, config::Option<int>& option, int min, 
 }
 
 template<typename T>
-bool OptionRadioButton(const char *name, config::Option<T>& option, T value, const char *help)
+bool OptionRadioButton(const char *name, config::Option<T>& option, T value, const char *help, SettingDetail detail)
 {
-	bool pressed;
-	{
-		DisabledScope scope(option.isReadOnly());
+        if (!isSettingVisible(detail))
+                return false;
+        bool pressed;
+        {
+                DisabledScope scope(option.isReadOnly());
 
 		int v = (int)option;
 		pressed = ImGui::RadioButton(name, &v, (int)value);
@@ -586,15 +610,17 @@ bool OptionRadioButton(const char *name, config::Option<T>& option, T value, con
 	}
 	return pressed;
 }
-template bool OptionRadioButton<bool>(const char *name, config::Option<bool>& option, bool value, const char *help);
-template bool OptionRadioButton<int>(const char *name, config::Option<int>& option, int value, const char *help);
+template bool OptionRadioButton<bool>(const char *name, config::Option<bool>& option, bool value, const char *help, SettingDetail detail);
+template bool OptionRadioButton<int>(const char *name, config::Option<int>& option, int value, const char *help, SettingDetail detail);
 
 template<bool PerGameOption>
 void OptionComboBox(const char *name, config::Option<int, PerGameOption>& option, const char *values[], int count,
-			const char *help)
+                        const char *help, SettingDetail detail)
 {
-	{
-		DisabledScope scope(option.isReadOnly());
+        if (!isSettingVisible(detail))
+                return;
+        {
+                DisabledScope scope(option.isReadOnly());
 
 		const char *value = option >= 0 && option < count ? values[option] : "?";
 		if (ImGui::BeginCombo(name, value, ImGuiComboFlags_None))
@@ -618,8 +644,8 @@ void OptionComboBox(const char *name, config::Option<int, PerGameOption>& option
 }
 
 // Explicit template instantiations
-template void OptionComboBox<true>(const char *name, config::Option<int, true>& option, const char *values[], int count, const char *help);
-template void OptionComboBox<false>(const char *name, config::Option<int, false>& option, const char *values[], int count, const char *help);
+template void OptionComboBox<true>(const char *name, config::Option<int, true>& option, const char *values[], int count, const char *help, SettingDetail detail);
+template void OptionComboBox<false>(const char *name, config::Option<int, false>& option, const char *values[], int count, const char *help, SettingDetail detail);
 
 void fullScreenWindow(bool modal)
 {
