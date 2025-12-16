@@ -10,5 +10,10 @@
 - When adding a new setting control, pass `SettingDetail::Advanced` to the option helper (e.g. `OptionCheckbox(..., SettingDetail::Advanced)`) to make it Advanced-only. Leaving it at the default keeps it visible in both modes.
 - Controls keep their declared order; Advanced-only entries simply collapse in Basic view so spacing stays tight without changing the sequence. You can insert a Basic or Advanced control anywhere in an existing layout and it will appear in that exact spot when visible.
 
+## Changing a setting's grouping
+- To move an existing setting to Advanced, update its helper call to pass `SettingDetail::Advanced`.
+- To make an Advanced-only setting show in both views, remove the `SettingDetail::Advanced` argument so it falls back to the default Basic+Advanced visibility.
+- After adjusting the flag, the setting will stay in its original order; only its visibility changes between the Basic and Advanced toggles.
+
 ## Notes for follow-up
 - The Advanced and Debug tabs are hidden while in Basic mode; additional settings can be marked Advanced as needed to simplify other tabs.
