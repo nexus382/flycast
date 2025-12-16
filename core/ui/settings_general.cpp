@@ -191,16 +191,17 @@ void gui_settings_general()
 
 		const char *broadcast[] = { "NTSC", "PAL", "PAL/M", "PAL/N", T("Default") };
 		OptionComboBox(T("Broadcast"), config::Broadcast, broadcast, std::size(broadcast),
-				T("TV broadcasting standard for non-VGA modes"));
+				T("TV broadcasting standard for non-VGA modes"), SettingDetail::Advanced);
 	}
 
 	const char *consoleRegion[] = { T("Japan"), T("USA"), T("Europe"), T("Default") };
 	const char *arcadeRegion[] = { T("Japan"), T("USA"), i18n::translateCtx("region", "Export"), T("Korea") };
 	const char **region = settings.platform.isArcade() ? arcadeRegion : consoleRegion;
 	OptionComboBox(T("Region"), config::Region, region, std::size(consoleRegion),
-			T("BIOS region"));
+			T("BIOS region"), SettingDetail::Advanced);
 
 	const char *cable[] = { T("VGA"), T("RGB Component"), T("TV Composite") };
+	if (isSettingVisible(SettingDetail::Advanced))
 	{
 		DisabledScope scope(config::Cable.isReadOnly() || settings.platform.isArcade());
 
@@ -219,99 +220,103 @@ void gui_settings_general()
 			}
 			ImGui::EndCombo();
 		}
-        ImGui::SameLine();
-        ShowHelpMarker(T("Video connection type"));
+		ImGui::SameLine();
+		ShowHelpMarker(T("Video connection type"));
 	}
 
 #if !defined(TARGET_IPHONE)
-    ImVec2 size;
-    size.x = 0.0f;
-    size.y = (ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y * 2.f)
-    				* (config::ContentPath.get().size() + 1);
+	if (isSettingVisible(SettingDetail::Advanced))
+	{
+		ImVec2 size;
+		size.x = 0.0f;
+		size.y = (ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y * 2.f)
+				* (config::ContentPath.get().size() + 1);
 
-    ImVec2 childSize;
-    if (beginFrame(T("Content Location"), size, &childSize))
-    {
-    	int to_delete = -1;
-        for (u32 i = 0; i < config::ContentPath.get().size(); i++)
-        {
-        	ImguiID _(config::ContentPath.get()[i].c_str());
-            ImGui::AlignTextToFramePadding();
-            float maxW = childSize.x - ImGui::CalcTextSize(ICON_FA_TRASH_CAN).x - ImGui::GetStyle().FramePadding.x * 2
-            		 - ImGui::GetStyle().ItemSpacing.x;
-            std::string s = middleEllipsis(config::ContentPath.get()[i], maxW);
-        	ImGui::Text("%s", s.c_str());
-        	ImGui::SameLine(0, maxW - ImGui::CalcTextSize(s.c_str()).x + ImGui::GetStyle().ItemSpacing.x);
-        	if (ImGui::Button(ICON_FA_TRASH_CAN))
-        		to_delete = i;
-        }
+		ImVec2 childSize;
+		if (beginFrame(T("Content Location"), size, &childSize))
+		{
+			int to_delete = -1;
+			for (u32 i = 0; i < config::ContentPath.get().size(); i++)
+			{
+				ImguiID _(config::ContentPath.get()[i].c_str());
+				ImGui::AlignTextToFramePadding();
+				float maxW = childSize.x - ImGui::CalcTextSize(ICON_FA_TRASH_CAN).x - ImGui::GetStyle().FramePadding.x * 2
+						 - ImGui::GetStyle().ItemSpacing.x;
+				std::string s = middleEllipsis(config::ContentPath.get()[i], maxW);
+				ImGui::Text("%s", s.c_str());
+				ImGui::SameLine(0, maxW - ImGui::CalcTextSize(s.c_str()).x + ImGui::GetStyle().ItemSpacing.x);
+				if (ImGui::Button(ICON_FA_TRASH_CAN))
+					to_delete = i;
+			}
 
-        ImguiStyleVar _(ImGuiStyleVar_FramePadding, ScaledVec2(24, 3));
-        const bool addContent = ImGui::Button((T("Add") + std::string("##") + "ContentLocation").c_str());
-        addContentPath(addContent);
-        ImGui::SameLine();
+			ImguiStyleVar _(ImGuiStyleVar_FramePadding, ScaledVec2(24, 3));
+			const bool addContent = ImGui::Button((T("Add") + std::string("##") + "ContentLocation").c_str());
+			addContentPath(addContent);
+			ImGui::SameLine();
 
-        if (ImGui::Button(T("Rescan Content")))
-			scanner.refresh();
+			if (ImGui::Button(T("Rescan Content")))
+				scanner.refresh();
 
-		endFrame();
-    	if (to_delete >= 0)
-    	{
-    		scanner.stop();
-    		config::ContentPath.get().erase(config::ContentPath.get().begin() + to_delete);
-			scanner.refresh();
-    	}
-    }
-    ImGui::SameLine();
-    ShowHelpMarker(T("The folders where your games are stored"));
+			endFrame();
+			if (to_delete >= 0)
+			{
+				scanner.stop();
+				config::ContentPath.get().erase(config::ContentPath.get().begin() + to_delete);
+				scanner.refresh();
+			}
+		}
+		ImGui::SameLine();
+		ShowHelpMarker(T("The folders where your games are stored"));
 
-    size.y = ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y * 2.0f;
-    ImGui::Spacing();
+		size.y = ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().FramePadding.y * 2.0f;
+		ImGui::Spacing();
 
 #if defined(__linux__) && !defined(__ANDROID__)
-    if (beginFrame(T("Data Folder"), size, &childSize))
-    {
-    	float w = childSize.x - ImGui::GetStyle().FramePadding.x;
-    	std::string s = middleEllipsis(get_writable_data_path(""), w);
-        ImGui::Text("%s", s.c_str());
-        endFrame();
-    }
-    ImGui::SameLine();
-    ShowHelpMarker(T("The folder containing BIOS files, as well as saved VMUs and states"));
+		if (beginFrame(T("Data Folder"), size, &childSize))
+		{
+			float w = childSize.x - ImGui::GetStyle().FramePadding.x;
+			std::string s = middleEllipsis(get_writable_data_path(""), w);
+			ImGui::Text("%s", s.c_str());
+			endFrame();
+		}
+		ImGui::SameLine();
+		ShowHelpMarker(T("The folder containing BIOS files, as well as saved VMUs and states"));
 #else
 #if defined(__ANDROID__) || defined(TARGET_MAC)
-    size.y += ImGui::GetTextLineHeightWithSpacing();
+		size.y += ImGui::GetTextLineHeightWithSpacing();
 #endif
-    if (beginFrame(T("Home Folder"), size, &childSize))
-    {
-    	float w = childSize.x - ImGui::GetStyle().FramePadding.x;
-    	std::string s = middleEllipsis(get_writable_config_path(""), w);
-        ImGui::Text("%s", s.c_str());
-        ImguiStyleVar _(ImGuiStyleVar_FramePadding, ScaledVec2(24, 3));
+		if (beginFrame(T("Home Folder"), size, &childSize))
+		{
+			float w = childSize.x - ImGui::GetStyle().FramePadding.x;
+			std::string s = middleEllipsis(get_writable_config_path(""), w);
+			ImGui::Text("%s", s.c_str());
+			ImguiStyleVar _(ImGuiStyleVar_FramePadding, ScaledVec2(24, 3));
 #ifdef __ANDROID__
-        {
-        	DisabledScope _(!config::UseSafFilePicker);
-			if (ImGui::Button(i18n::translateCtx("action", "Import")))
-				hostfs::importHomeDirectory();
-			ImGui::SameLine();
-			if (ImGui::Button(i18n::translateCtx("action", "Export")))
-				hostfs::exportHomeDirectory();
-        }
+			{
+				DisabledScope _(!config::UseSafFilePicker);
+				if (ImGui::Button(i18n::translateCtx("action", "Import")))
+					hostfs::importHomeDirectory();
+				ImGui::SameLine();
+				if (ImGui::Button(i18n::translateCtx("action", "Export")))
+					hostfs::exportHomeDirectory();
+			}
 #endif
 #ifdef TARGET_MAC
-        if (ImGui::Button(T("Reveal in Finder")))
-        {
-            char temp[512];
-            snprintf(temp, sizeof(temp), "open \"%s\"", get_writable_config_path("").c_str());
-            system(temp);
-        }
+			if (ImGui::Button(T("Reveal in Finder")))
+			{
+				char temp[512];
+				snprintf(temp, sizeof(temp), "open \"%s\"", get_writable_config_path("").c_str());
+				system(temp);
+			}
 #endif
-        endFrame();
-    }
-    ImGui::SameLine();
-    ShowHelpMarker(T("The folder where Flycast saves configuration files and VMUs. BIOS files should be in a subfolder named \"data\""));
+			endFrame();
+		}
+		ImGui::SameLine();
+		ShowHelpMarker(T("The folder where Flycast saves configuration files and VMUs. BIOS files should be in a subfolder named \"data\""));
+
+	}
 #endif // !linux
-    ImGui::Spacing();
+	ImGui::Spacing();
 #else // TARGET_IPHONE
     {
     	ImguiStyleVar _(ImGuiStyleVar_FramePadding, ScaledVec2(24, 3));

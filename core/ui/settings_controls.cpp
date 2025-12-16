@@ -1053,14 +1053,14 @@ void gui_settings_controls(bool& maple_devices_changed)
 	ImGui::Spacing();
 	OptionSlider(T("Mouse sensitivity"), config::MouseSensitivity, 1, 500);
 #if defined(_WIN32) && !defined(TARGET_UWP)
-	OptionCheckbox(T("Use Raw Input"), config::UseRawInput, T("Supports multiple pointing devices (mice, light guns) and keyboards"));
+	OptionCheckbox(T("Use Raw Input"), config::UseRawInput, T("Supports multiple pointing devices (mice, light guns) and keyboards"), SettingDetail::Advanced);
 #endif
 #ifdef USE_DREAMLINK_DEVICES
 	{
 		DisabledScope scope(game_started);
 		OptionCheckbox(T("Use Physical VMU Memory"), config::UsePhysicalVmuMemory,
-				T("Enables direct read/write access to physical VMU memory via DreamPicoPort/DreamConn. "
-			"This is not compatible with load state events."));
+			T("Enables direct read/write access to physical VMU memory via DreamPicoPort/DreamConn. "
+		"This is not compatible with load state events."), SettingDetail::Advanced);
 	}
 #endif
 
@@ -1178,7 +1178,7 @@ void gui_settings_controls(bool& maple_devices_changed)
 					ImGui::SameLine();
 					ImGui::PushID(bus);
 					bool pressed = OptionCheckbox(T("Use Network Expansion Devices"), config::UseNetworkExpansionDevices[bus],
-							T("Connect to expansion devices such as VMUs over local TCP."));
+							T("Connect to expansion devices such as VMUs over local TCP."), SettingDetail::Advanced);
 					ImGui::PopID();
 
 					if (pressed)
