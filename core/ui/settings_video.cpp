@@ -201,8 +201,8 @@ void gui_settings_video()
         ImGui::Text("%s", T("Internal Resolution"));
         ImGui::SameLine();
         ShowHelpMarker(T("Internal render resolution. Higher is better, but more demanding on the GPU. Values higher than your display resolution (but no more than double your display resolution) can be used for supersampling, which provides high-quality antialiasing without reducing sharpness."));
-		OptionCheckbox(T("Integer Scaling"), config::IntegerScale, T("Scales the output by the maximum integer multiple allowed by the display resolution."));
-		OptionCheckbox(T("Linear Interpolation"), config::LinearInterpolation, T("Scales the output with linear interpolation. Will use nearest neighbor interpolation otherwise. Disable with integer scaling."));
+		OptionCheckbox(T("Integer Scaling"), config::IntegerScale, T("Scales the output by the maximum integer multiple allowed by the display resolution."), SettingDetail::Advanced);
+		OptionCheckbox(T("Linear Interpolation"), config::LinearInterpolation, T("Scales the output with linear interpolation. Will use nearest neighbor interpolation otherwise. Disable with integer scaling."), SettingDetail::Advanced);
 #ifndef TARGET_IPHONE
     	OptionCheckbox(T("VSync"), config::VSync, T("Synchronizes the frame rate with the screen refresh rate. Recommended"));
     	if (isVulkan(config::RendererType))
@@ -219,11 +219,11 @@ void gui_settings_video()
     	OptionCheckbox(T("Show VMU In-game"), config::FloatVMUs, T("Show the VMU LCD screens while in-game"));
     	OptionCheckbox(T("Full Framebuffer Emulation"), config::EmulateFramebuffer,
     			T("Fully accurate VRAM framebuffer emulation. Helps games that directly access the framebuffer for special effects. "
-    			"Very slow and incompatible with upscaling and wide screen."));
+    			"Very slow and incompatible with upscaling and wide screen."), SettingDetail::Advanced);
 		{
 			DisabledScope scope(game_started);
 			OptionCheckbox(T("Load Custom Textures"), config::CustomTextures,
-					T("Load custom/high-res textures from data/textures/<game id>"));
+					T("Load custom/high-res textures from data/textures/<game id>"), SettingDetail::Advanced);
 			ImGui::Indent();
 			{
 				DisabledScope scope(!config::CustomTextures.get());
@@ -250,7 +250,7 @@ void gui_settings_video()
     			T("Modify the game so that it displays in 16:9 anamorphic format and use horizontal screen stretching. Only some games are supported."));
     	OptionSlider(T("Horizontal Stretching"), config::ScreenStretching, 100, 250,
     			T("Stretch the screen horizontally"), "%d%%");
-    	OptionCheckbox(T("Rotate Screen 90°"), config::Rotate90, T("Rotate the screen 90° counterclockwise"));
+    	OptionCheckbox(T("Rotate Screen 90°"), config::Rotate90, T("Rotate the screen 90° counterclockwise"), SettingDetail::Advanced);
     }
 	if (perPixel)
 	{
@@ -318,20 +318,20 @@ void gui_settings_video()
     	OptionArrowButtons(T("Frame Skipping"), config::SkipFrame, 0, 6,
     			T("Number of frames to skip between two actually rendered frames"));
     	OptionCheckbox(T("Shadows"), config::ModifierVolumes,
-    			T("Enable modifier volumes, usually used for shadows"));
-    	OptionCheckbox(T("Fog"), config::Fog, T("Enable fog effects"));
+    			T("Enable modifier volumes, usually used for shadows"), SettingDetail::Advanced);
+    	OptionCheckbox(T("Fog"), config::Fog, T("Enable fog effects"), SettingDetail::Advanced);
     }
     ImGui::Spacing();
 	header(T("Advanced"));
     {
     	OptionCheckbox(T("Delay Frame Swapping"), config::DelayFrameSwapping,
-    			T("Useful to avoid flashing screen or glitchy videos. Not recommended on slow platforms"));
+    			T("Useful to avoid flashing screen or glitchy videos. Not recommended on slow platforms"), SettingDetail::Advanced);
     	OptionCheckbox(T("Fix Upscale Bleeding Edge"), config::FixUpscaleBleedingEdge,
-    			T("Helps with texture bleeding case when upscaling. Disabling it can help if pixels are warping when upscaling in 2D games (MVC2, CVS, KOF, etc.)"));
+    			T("Helps with texture bleeding case when upscaling. Disabling it can help if pixels are warping when upscaling in 2D games (MVC2, CVS, KOF, etc.)"), SettingDetail::Advanced);
     	OptionCheckbox(T("Native Depth Interpolation"), config::NativeDepthInterpolation,
-    			T("Helps with texture corruption and depth issues on AMD GPUs. Can also help Intel GPUs in some cases."));
+    			T("Helps with texture corruption and depth issues on AMD GPUs. Can also help Intel GPUs in some cases."), SettingDetail::Advanced);
     	OptionCheckbox(T("Copy Rendered Textures to VRAM"), config::RenderToTextureBuffer,
-    			T("Copy rendered-to textures back to VRAM. Slower but accurate"));
+    			T("Copy rendered-to textures back to VRAM. Slower but accurate"), SettingDetail::Advanced);
 		const std::array<int, 5> aniso{ 1, 2, 4, 8, 16 };
         const std::array<std::string, 5> anisoText{ T("Disabled"), "2x", "4x", "8x", "16x" };
         u32 afSelected = 0;
