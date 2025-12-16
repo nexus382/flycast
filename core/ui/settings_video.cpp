@@ -201,10 +201,10 @@ void gui_settings_video()
         ImGui::Text("%s", T("Internal Resolution"));
         ImGui::SameLine();
         ShowHelpMarker(T("Internal render resolution. Higher is better, but more demanding on the GPU. Values higher than your display resolution (but no more than double your display resolution) can be used for supersampling, which provides high-quality antialiasing without reducing sharpness."));
-		OptionCheckbox(T("Integer Scaling"), config::IntegerScale, T("Scales the output by the maximum integer multiple allowed by the display resolution."));
-		OptionCheckbox(T("Linear Interpolation"), config::LinearInterpolation, T("Scales the output with linear interpolation. Will use nearest neighbor interpolation otherwise. Disable with integer scaling."));
-#ifndef TARGET_IPHONE
-    	OptionCheckbox(T("VSync"), config::VSync, T("Synchronizes the frame rate with the screen refresh rate. Recommended"));
+			OptionCheckbox(T("Integer Scaling"), config::IntegerScale, T("Scales the output by the maximum integer multiple allowed by the display resolution."), SettingDetail::Advanced);
+			OptionCheckbox(T("Linear Interpolation"), config::LinearInterpolation, T("Scales the output with linear interpolation. Will use nearest neighbor interpolation otherwise. Disable with integer scaling."), SettingDetail::Advanced);
+	#ifndef TARGET_IPHONE
+	    	OptionCheckbox(T("VSync"), config::VSync, T("Synchronizes the frame rate with the screen refresh rate. Recommended"));
     	if (isVulkan(config::RendererType))
     	{
 	    	ImGui::Indent();
@@ -217,21 +217,21 @@ void gui_settings_video()
     	}
 #endif
     	OptionCheckbox(T("Show VMU In-game"), config::FloatVMUs, T("Show the VMU LCD screens while in-game"));
-    	OptionCheckbox(T("Full Framebuffer Emulation"), config::EmulateFramebuffer,
-    			T("Fully accurate VRAM framebuffer emulation. Helps games that directly access the framebuffer for special effects. "
-    			"Very slow and incompatible with upscaling and wide screen."));
-		{
-			DisabledScope scope(game_started);
-			OptionCheckbox(T("Load Custom Textures"), config::CustomTextures,
-					T("Load custom/high-res textures from data/textures/<game id>"));
-			ImGui::Indent();
+	    	OptionCheckbox(T("Full Framebuffer Emulation"), config::EmulateFramebuffer,
+	    			T("Fully accurate VRAM framebuffer emulation. Helps games that directly access the framebuffer for special effects. "
+	    			"Very slow and incompatible with upscaling and wide screen."), SettingDetail::Advanced);
 			{
-				DisabledScope scope(!config::CustomTextures.get());
-				OptionCheckbox(T("Preload Custom Textures"), config::PreloadCustomTextures,
-						T("Preload custom textures at game start. May improve performance but increases memory usage"));
+				DisabledScope scope(game_started);
+				OptionCheckbox(T("Load Custom Textures"), config::CustomTextures,
+						T("Load custom/high-res textures from data/textures/<game id>"), SettingDetail::Advanced);
+				ImGui::Indent();
+				{
+					DisabledScope scope(!config::CustomTextures.get());
+					OptionCheckbox(T("Preload Custom Textures"), config::PreloadCustomTextures,
+							T("Preload custom textures at game start. May improve performance but increases memory usage"), SettingDetail::Advanced);
+				}
+				ImGui::Unindent();
 			}
-			ImGui::Unindent();
-		}
     }
 	ImGui::Spacing();
     header(T("Aspect Ratio"));
@@ -250,7 +250,7 @@ void gui_settings_video()
     			T("Modify the game so that it displays in 16:9 anamorphic format and use horizontal screen stretching. Only some games are supported."));
     	OptionSlider(T("Horizontal Stretching"), config::ScreenStretching, 100, 250,
     			T("Stretch the screen horizontally"), "%d%%");
-    	OptionCheckbox(T("Rotate Screen 90°"), config::Rotate90, T("Rotate the screen 90° counterclockwise"));
+	    	OptionCheckbox(T("Rotate Screen 90°"), config::Rotate90, T("Rotate the screen 90° counterclockwise"), SettingDetail::Advanced);
     }
 	if (perPixel)
 	{
@@ -315,80 +315,84 @@ void gui_settings_video()
     	OptionRadioButton(T("Maximum"), config::AutoSkipFrame, 2, T("Skip a frame when the GPU is running slow"));
     	ImGui::Columns(1, nullptr, false);
 
-    	OptionArrowButtons(T("Frame Skipping"), config::SkipFrame, 0, 6,
-    			T("Number of frames to skip between two actually rendered frames"));
-    	OptionCheckbox(T("Shadows"), config::ModifierVolumes,
-    			T("Enable modifier volumes, usually used for shadows"));
-    	OptionCheckbox(T("Fog"), config::Fog, T("Enable fog effects"));
-    }
-    ImGui::Spacing();
-	header(T("Advanced"));
-    {
-    	OptionCheckbox(T("Delay Frame Swapping"), config::DelayFrameSwapping,
-    			T("Useful to avoid flashing screen or glitchy videos. Not recommended on slow platforms"));
-    	OptionCheckbox(T("Fix Upscale Bleeding Edge"), config::FixUpscaleBleedingEdge,
-    			T("Helps with texture bleeding case when upscaling. Disabling it can help if pixels are warping when upscaling in 2D games (MVC2, CVS, KOF, etc.)"));
-    	OptionCheckbox(T("Native Depth Interpolation"), config::NativeDepthInterpolation,
-    			T("Helps with texture corruption and depth issues on AMD GPUs. Can also help Intel GPUs in some cases."));
-    	OptionCheckbox(T("Copy Rendered Textures to VRAM"), config::RenderToTextureBuffer,
-    			T("Copy rendered-to textures back to VRAM. Slower but accurate"));
-		const std::array<int, 5> aniso{ 1, 2, 4, 8, 16 };
-        const std::array<std::string, 5> anisoText{ T("Disabled"), "2x", "4x", "8x", "16x" };
-        u32 afSelected = 0;
-        for (u32 i = 0; i < aniso.size(); i++)
-        {
-        	if (aniso[i] == config::AnisotropicFiltering)
-        		afSelected = i;
-        }
+	    	OptionArrowButtons(T("Frame Skipping"), config::SkipFrame, 0, 6,
+	    			T("Number of frames to skip between two actually rendered frames"), SettingDetail::Advanced);
+	    	OptionCheckbox(T("Shadows"), config::ModifierVolumes,
+	    			T("Enable modifier volumes, usually used for shadows"), SettingDetail::Advanced);
+	    	OptionCheckbox(T("Fog"), config::Fog, T("Enable fog effects"), SettingDetail::Advanced);
+	    }
+	    ImGui::Spacing();
+		if (isSettingVisible(SettingDetail::Advanced))
+		{
+			header(T("Advanced"));
+	    	{
+	    		OptionCheckbox(T("Delay Frame Swapping"), config::DelayFrameSwapping,
+	    				T("Useful to avoid flashing screen or glitchy videos. Not recommended on slow platforms"), SettingDetail::Advanced);
+	    		OptionCheckbox(T("Fix Upscale Bleeding Edge"), config::FixUpscaleBleedingEdge,
+	    				T("Helps with texture bleeding case when upscaling. Disabling it can help if pixels are warping when upscaling in 2D games (MVC2, CVS, KOF, etc.)"), SettingDetail::Advanced);
+	    		OptionCheckbox(T("Native Depth Interpolation"), config::NativeDepthInterpolation,
+	    				T("Helps with texture corruption and depth issues on AMD GPUs. Can also help Intel GPUs in some cases."), SettingDetail::Advanced);
+	    		OptionCheckbox(T("Copy Rendered Textures to VRAM"), config::RenderToTextureBuffer,
+	    				T("Copy rendered-to textures back to VRAM. Slower but accurate"), SettingDetail::Advanced);
+				const std::array<int, 5> aniso{ 1, 2, 4, 8, 16 };
+	        	const std::array<std::string, 5> anisoText{ T("Disabled"), "2x", "4x", "8x", "16x" };
+	        	u32 afSelected = 0;
+	        	for (u32 i = 0; i < aniso.size(); i++)
+	        	{
+	        		if (aniso[i] == config::AnisotropicFiltering)
+	        			afSelected = i;
+	        	}
 
-        ImGui::PushItemWidth(ImGui::CalcItemWidth() - innerSpacing * 2.0f - ImGui::GetFrameHeight() * 2.0f);
-        if (ImGui::BeginCombo("##Anisotropic Filtering", anisoText[afSelected].c_str(), ImGuiComboFlags_NoArrowButton))
-        {
-        	for (u32 i = 0; i < aniso.size(); i++)
-            {
-                bool is_selected = aniso[i] == config::AnisotropicFiltering;
-                if (ImGui::Selectable(anisoText[i].c_str(), is_selected))
-                	config::AnisotropicFiltering = aniso[i];
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-            ImGui::EndCombo();
-        }
-        ImGui::PopItemWidth();
-        ImGui::SameLine(0, innerSpacing);
+	        	ImGui::PushItemWidth(ImGui::CalcItemWidth() - innerSpacing * 2.0f - ImGui::GetFrameHeight() * 2.0f);
+	        	if (ImGui::BeginCombo("##Anisotropic Filtering", anisoText[afSelected].c_str(), ImGuiComboFlags_NoArrowButton))
+	        	{
+	        		for (u32 i = 0; i < aniso.size(); i++)
+	            	{
+	                	bool is_selected = aniso[i] == config::AnisotropicFiltering;
+	                	if (ImGui::Selectable(anisoText[i].c_str(), is_selected))
+	                		config::AnisotropicFiltering = aniso[i];
+	                	if (is_selected)
+	                    	ImGui::SetItemDefaultFocus();
+	            	}
+	            	ImGui::EndCombo();
+	        	}
+	        	ImGui::PopItemWidth();
+	        	ImGui::SameLine(0, innerSpacing);
 
-        if (ImGui::ArrowButton("##Decrease Anisotropic Filtering", ImGuiDir_Left))
-        {
-            if (afSelected > 0)
-            	config::AnisotropicFiltering = aniso[afSelected - 1];
-        }
-        ImGui::SameLine(0, innerSpacing);
-        if (ImGui::ArrowButton("##Increase Anisotropic Filtering", ImGuiDir_Right))
-        {
-            if (afSelected < aniso.size() - 1)
-            	config::AnisotropicFiltering = aniso[afSelected + 1];
-        }
-        ImGui::SameLine(0, innerSpacing);
+	        	if (ImGui::ArrowButton("##Decrease Anisotropic Filtering", ImGuiDir_Left))
+	        	{
+	            	if (afSelected > 0)
+	            		config::AnisotropicFiltering = aniso[afSelected - 1];
+	        	}
+	        	ImGui::SameLine(0, innerSpacing);
+	        	if (ImGui::ArrowButton("##Increase Anisotropic Filtering", ImGuiDir_Right))
+	        	{
+	            	if (afSelected < aniso.size() - 1)
+	            		config::AnisotropicFiltering = aniso[afSelected + 1];
+	        	}
+	        	ImGui::SameLine(0, innerSpacing);
 
-        ImGui::Text("%s", T("Anisotropic Filtering"));
-        ImGui::SameLine();
-        ShowHelpMarker(T("Higher values make textures viewed at oblique angles look sharper, but are more demanding on the GPU. This option only has a visible impact on mipmapped textures."));
+	        	ImGui::Text("%s", T("Anisotropic Filtering"));
+	        	ImGui::SameLine();
+	        	ShowHelpMarker(T("Higher values make textures viewed at oblique angles look sharper, but are more demanding on the GPU. This option only has a visible impact on mipmapped textures."));
 
-    	ImGui::Text("%s", T("Texture Filtering:"));
-    	ImGui::Columns(3, "textureFiltering", false);
-    	OptionRadioButton(T("Default"), config::TextureFiltering, 0, T("Use the game's default texture filtering"));
-    	ImGui::NextColumn();
-    	OptionRadioButton(T("Force Nearest-Neighbor"), config::TextureFiltering, 1, T("Force nearest-neighbor filtering for all textures. Crisper appearance, but may cause various rendering issues. This option usually does not affect performance."));
-    	ImGui::NextColumn();
-    	OptionRadioButton(T("Force Linear"), config::TextureFiltering, 2, T("Force linear filtering for all textures. Smoother appearance, but may cause various rendering issues. This option usually does not affect performance."));
-    	ImGui::Columns(1, nullptr, false);
-
-    	OptionCheckbox(T("Show FPS Counter"), config::ShowFPS, T("Show on-screen frame/sec counter"));
-    }
-#ifdef VIDEO_ROUTING
-	ImGui::Spacing();
-#ifdef __APPLE__
-	header(T("Video Routing (Syphon)"));
+	    		ImGui::Text("%s", T("Texture Filtering:"));
+	    		ImGui::Columns(3, "textureFiltering", false);
+	    		OptionRadioButton(T("Default"), config::TextureFiltering, 0, T("Use the game's default texture filtering"), SettingDetail::Advanced);
+	    		ImGui::NextColumn();
+	    		OptionRadioButton(T("Force Nearest-Neighbor"), config::TextureFiltering, 1, T("Force nearest-neighbor filtering for all textures. Crisper appearance, but may cause various rendering issues. This option usually does not affect performance."), SettingDetail::Advanced);
+	    		ImGui::NextColumn();
+	    		OptionRadioButton(T("Force Linear"), config::TextureFiltering, 2, T("Force linear filtering for all textures. Smoother appearance, but may cause various rendering issues. This option usually does not affect performance."), SettingDetail::Advanced);
+	    	ImGui::Columns(1, nullptr, false);
+	    }
+		}
+		OptionCheckbox(T("Show FPS Counter"), config::ShowFPS, T("Show on-screen frame/sec counter"));
+	if (isSettingVisible(SettingDetail::Advanced))
+	{
+	#ifdef VIDEO_ROUTING
+		ImGui::Spacing();
+	#ifdef __APPLE__
+		header(T("Video Routing (Syphon)"));
 #elif defined(_WIN32)
 	if (renderApi == OpenGL || renderApi == DirectX11)
 		header(T("Video Routing (Spout)"));
@@ -415,8 +419,9 @@ void gui_settings_video()
 			}
 			ImGui::Text(T("Output texture size: %d x %d"), config::VideoRoutingScale ? config::VideoRoutingVRes * settings.display.width / settings.display.height : settings.display.width, config::VideoRoutingScale ? config::VideoRoutingVRes : settings.display.height);
 		}
+		}
+	#endif
 	}
-#endif
 
     switch (renderApi)
     {

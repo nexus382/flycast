@@ -34,21 +34,21 @@
 
 static void gui_settings_advanced()
 {
-#if FEAT_SHREC != DYNAREC_NONE
-    header(T("CPU Mode"));
-    {
-		ImGui::Columns(2, "cpu_modes", false);
-		OptionRadioButton(T("Dynarec"), config::DynarecEnabled, true,
-				T("Use the dynamic recompiler. Recommended in most cases"));
-		ImGui::NextColumn();
-		OptionRadioButton(T("Interpreter"), config::DynarecEnabled, false,
-				T("Use the interpreter. Very slow but may help in case of a dynarec problem"));
-		ImGui::Columns(1, NULL, false);
+	#if FEAT_SHREC != DYNAREC_NONE
+	    header(T("CPU Mode"));
+	    {
+			ImGui::Columns(2, "cpu_modes", false);
+			OptionRadioButton(T("Dynarec"), config::DynarecEnabled, true,
+					T("Use the dynamic recompiler. Recommended in most cases"), SettingDetail::Advanced);
+			ImGui::NextColumn();
+			OptionRadioButton(T("Interpreter"), config::DynarecEnabled, false,
+					T("Use the interpreter. Very slow but may help in case of a dynarec problem"), SettingDetail::Advanced);
+			ImGui::Columns(1, NULL, false);
 
-		OptionSlider(T("SH4 Clock"), config::Sh4Clock, 100, 300,
-				T("Over/Underclock the main SH4 CPU. Default is 200 MHz. Other values may crash, freeze or trigger unexpected nuclear reactions."),
-				"%d MHz");
-    }
+			OptionSlider(T("SH4 Clock"), config::Sh4Clock, 100, 300,
+					T("Over/Underclock the main SH4 CPU. Default is 200 MHz. Other values may crash, freeze or trigger unexpected nuclear reactions."),
+					"%d MHz", SettingDetail::Advanced);
+	    }
 #ifdef GDB_SERVER
 	ImGui::Spacing();
 	header("Virtual memory addresses");
@@ -75,12 +75,12 @@ static void gui_settings_advanced()
 	ImGui::Spacing();
 	header("Debugging");
 	{
-		OptionCheckbox("Enable GDB", config::GDB, "GDB debugging support, disables Dynarec and dramatically reduces performance when a debugger is connected.");
-		OptionCheckbox("Wait for connection", config::GDBWaitForConnection, "Start emulation once the debugger is connected.");
-#ifndef __ANDROID
-		OptionCheckbox("Serial Console", config::SerialConsole, "Dump the Dreamcast serial console to stdout");
-		OptionCheckbox("Serial PTY", config::SerialPTY, "Requires the option \"Serial Console\" to work");
-#endif
+		OptionCheckbox("Enable GDB", config::GDB, "GDB debugging support, disables Dynarec and dramatically reduces performance when a debugger is connected.", SettingDetail::Advanced);
+		OptionCheckbox("Wait for connection", config::GDBWaitForConnection, "Start emulation once the debugger is connected.", SettingDetail::Advanced);
+	#ifndef __ANDROID
+		OptionCheckbox("Serial Console", config::SerialConsole, "Dump the Dreamcast serial console to stdout", SettingDetail::Advanced);
+		OptionCheckbox("Serial PTY", config::SerialPTY, "Requires the option \"Serial Console\" to work", SettingDetail::Advanced);
+	#endif
 
 		static int gdbport = config::GDBPort;
 		if (ImGui::InputInt("GDB port", &gdbport))
@@ -94,20 +94,20 @@ static void gui_settings_advanced()
 #endif
 	ImGui::Spacing();
 #endif
-    header(T("Other"));
-    {
-    	OptionCheckbox(T("HLE BIOS"), config::UseReios, T("Force high-level BIOS emulation"));
-        OptionCheckbox(T("Multi-threaded emulation"), config::ThreadedRendering,
-        		T("Run the emulated CPU and GPU on different threads"));
-#if !defined(__ANDROID) && !defined(GDB_SERVER)
-        OptionCheckbox(T("Serial Console"), config::SerialConsole,
-        		T("Dump the Dreamcast serial console to stdout"));
-#endif
-		{
-			DisabledScope scope(game_started);
-			OptionCheckbox(T("Dreamcast 32MB RAM Mod"), config::RamMod32MB,
-					T("Enables 32MB RAM Mod for Dreamcast. May affect compatibility"));
-		}
+	    header(T("Other"));
+	    {
+	    	OptionCheckbox(T("HLE BIOS"), config::UseReios, T("Force high-level BIOS emulation"));
+	        OptionCheckbox(T("Multi-threaded emulation"), config::ThreadedRendering,
+	        		T("Run the emulated CPU and GPU on different threads"));
+	#if !defined(__ANDROID) && !defined(GDB_SERVER)
+	        OptionCheckbox(T("Serial Console"), config::SerialConsole,
+	        		T("Dump the Dreamcast serial console to stdout"), SettingDetail::Advanced);
+	#endif
+			{
+				DisabledScope scope(game_started);
+				OptionCheckbox(T("Dreamcast 32MB RAM Mod"), config::RamMod32MB,
+						T("Enables 32MB RAM Mod for Dreamcast. May affect compatibility"), SettingDetail::Advanced);
+			}
         OptionCheckbox(T("Dump Textures"), config::DumpTextures,
         		T("Dump all textures into data/texdump/<game id>"));
 		ImGui::Indent();
@@ -339,4 +339,3 @@ void gui_display_settings()
     windowDragScroll();
     ImGui::End();
 }
-

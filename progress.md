@@ -4,6 +4,7 @@
 - Added a Basic/Advanced view toggle to the settings window so we can switch between simpler and full layouts without rearranging existing controls.
 - Introduced a shared `SettingDetail` flag and visibility helpers so any setting control can be marked as Basic or Advanced when it is added.
 - Wired our option helper widgets to respect the visibility flag, making it easy to hide Advanced-only items while keeping layout spacing intact.
+- Moved selected General, Controllers, Video, Network, and Advanced tab options to the Advanced view to simplify the Basic layout.
 
 ## How to use
 - Use the new "View" radio buttons at the top of the Settings window to switch between Basic and Advanced modes.
