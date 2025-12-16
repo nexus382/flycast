@@ -316,7 +316,7 @@ void gui_settings_video()
     	ImGui::Columns(1, nullptr, false);
 
 			OptionArrowButtons(T("Frame Skipping"), config::SkipFrame, 0, 6,
-					T("Number of frames to skip between two actually rendered frames"), SettingDetail::Advanced);
+					T("Number of frames to skip between two actually rendered frames"), nullptr, SettingDetail::Advanced);
 			OptionCheckbox(T("Shadows"), config::ModifierVolumes,
 					T("Enable modifier volumes, usually used for shadows"), SettingDetail::Advanced);
 			OptionCheckbox(T("Fog"), config::Fog, T("Enable fog effects"), SettingDetail::Advanced);
