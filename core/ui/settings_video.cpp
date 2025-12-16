@@ -305,23 +305,23 @@ void gui_settings_video()
 	}
 	ImGui::Spacing();
     header(T("Performance"));
-    {
-    	ImGui::Text("%s", T("Automatic Frame Skipping:"));
-    	ImGui::Columns(3, "autoskip", false);
-    	OptionRadioButton(T("Disabled"), config::AutoSkipFrame, 0, T("No frame skipping"));
-    	ImGui::NextColumn();
-    	OptionRadioButton(T("Normal"), config::AutoSkipFrame, 1, T("Skip a frame when the GPU and CPU are both running slow"));
-    	ImGui::NextColumn();
-    	OptionRadioButton(T("Maximum"), config::AutoSkipFrame, 2, T("Skip a frame when the GPU is running slow"));
-    	ImGui::Columns(1, nullptr, false);
+	    {
+	    	ImGui::Text("%s", T("Automatic Frame Skipping:"));
+	    	ImGui::Columns(3, "autoskip", false);
+	    	OptionRadioButton(T("Disabled"), config::AutoSkipFrame, 0, T("No frame skipping"));
+	    	ImGui::NextColumn();
+	    	OptionRadioButton(T("Normal"), config::AutoSkipFrame, 1, T("Skip a frame when the GPU and CPU are both running slow"));
+	    	ImGui::NextColumn();
+	    	OptionRadioButton(T("Maximum"), config::AutoSkipFrame, 2, T("Skip a frame when the GPU is running slow"));
+	    	ImGui::Columns(1, nullptr, false);
 
-			OptionArrowButtons(T("Frame Skipping"), config::SkipFrame, 0, 6,
-					T("Number of frames to skip between two actually rendered frames"), nullptr, SettingDetail::Advanced);
-			OptionCheckbox(T("Shadows"), config::ModifierVolumes,
-					T("Enable modifier volumes, usually used for shadows"), SettingDetail::Advanced);
-			OptionCheckbox(T("Fog"), config::Fog, T("Enable fog effects"), SettingDetail::Advanced);
-		}
-		ImGui::Spacing();
+	    	OptionArrowButtons(T("Frame Skipping"), config::SkipFrame, 0, 6,
+	    			T("Number of frames to skip between two actually rendered frames"), nullptr, SettingDetail::Advanced);
+	    	OptionCheckbox(T("Shadows"), config::ModifierVolumes,
+	    			T("Enable modifier volumes, usually used for shadows"), SettingDetail::Advanced);
+	    	OptionCheckbox(T("Fog"), config::Fog, T("Enable fog effects"), SettingDetail::Advanced);
+	    }
+	    ImGui::Spacing();
 	}
 
 	if (isSettingVisible(SettingDetail::Advanced))
