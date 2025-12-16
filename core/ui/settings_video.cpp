@@ -201,13 +201,13 @@ void gui_settings_video()
         ImGui::Text("%s", T("Internal Resolution"));
         ImGui::SameLine();
         ShowHelpMarker(T("Internal render resolution. Higher is better, but more demanding on the GPU. Values higher than your display resolution (but no more than double your display resolution) can be used for supersampling, which provides high-quality antialiasing without reducing sharpness."));
-			OptionCheckbox(T("Integer Scaling"), config::IntegerScale, T("Scales the output by the maximum integer multiple allowed by the display resolution."), SettingDetail::Advanced);
-			OptionCheckbox(T("Linear Interpolation"), config::LinearInterpolation, T("Scales the output with linear interpolation. Will use nearest neighbor interpolation otherwise. Disable with integer scaling."), SettingDetail::Advanced);
-	#ifndef TARGET_IPHONE
-	    	OptionCheckbox(T("VSync"), config::VSync, T("Synchronizes the frame rate with the screen refresh rate. Recommended"));
-    	if (isVulkan(config::RendererType))
-    	{
-	    	ImGui::Indent();
+		OptionCheckbox(T("Integer Scaling"), config::IntegerScale, T("Scales the output by the maximum integer multiple allowed by the display resolution."), SettingDetail::Advanced);
+		OptionCheckbox(T("Linear Interpolation"), config::LinearInterpolation, T("Scales the output with linear interpolation. Will use nearest neighbor interpolation otherwise. Disable with integer scaling."), SettingDetail::Advanced);
+#ifndef TARGET_IPHONE
+	    OptionCheckbox(T("VSync"), config::VSync, T("Synchronizes the frame rate with the screen refresh rate. Recommended"));
+	if (isVulkan(config::RendererType))
+	{
+		ImGui::Indent();
 			{
 				DisabledScope scope(!config::VSync);
 
@@ -216,28 +216,28 @@ void gui_settings_video()
 	    	ImGui::Unindent();
     	}
 #endif
-    	OptionCheckbox(T("Show VMU In-game"), config::FloatVMUs, T("Show the VMU LCD screens while in-game"));
-	    	OptionCheckbox(T("Full Framebuffer Emulation"), config::EmulateFramebuffer,
-	    			T("Fully accurate VRAM framebuffer emulation. Helps games that directly access the framebuffer for special effects. "
-	    			"Very slow and incompatible with upscaling and wide screen."), SettingDetail::Advanced);
-			{
-				DisabledScope scope(game_started);
-				OptionCheckbox(T("Load Custom Textures"), config::CustomTextures,
-						T("Load custom/high-res textures from data/textures/<game id>"), SettingDetail::Advanced);
-				ImGui::Indent();
-				{
-					DisabledScope scope(!config::CustomTextures.get());
-					OptionCheckbox(T("Preload Custom Textures"), config::PreloadCustomTextures,
-							T("Preload custom textures at game start. May improve performance but increases memory usage"), SettingDetail::Advanced);
-				}
-				ImGui::Unindent();
-			}
+	OptionCheckbox(T("Show VMU In-game"), config::FloatVMUs, T("Show the VMU LCD screens while in-game"));
+		OptionCheckbox(T("Full Framebuffer Emulation"), config::EmulateFramebuffer,
+				T("Fully accurate VRAM framebuffer emulation. Helps games that directly access the framebuffer for special effects. "
+				"Very slow and incompatible with upscaling and wide screen."), SettingDetail::Advanced);
+	{
+		DisabledScope scope(game_started);
+		OptionCheckbox(T("Load Custom Textures"), config::CustomTextures,
+				T("Load custom/high-res textures from data/textures/<game id>"), SettingDetail::Advanced);
+		ImGui::Indent();
+		{
+			DisabledScope scope(!config::CustomTextures.get());
+			OptionCheckbox(T("Preload Custom Textures"), config::PreloadCustomTextures,
+					T("Preload custom textures at game start. May improve performance but increases memory usage"), SettingDetail::Advanced);
+		}
+		ImGui::Unindent();
+	}
     }
 	ImGui::Spacing();
-    header(T("Aspect Ratio"));
-    {
-    	OptionCheckbox(T("Widescreen"), config::Widescreen,
-    			T("Draw geometry outside of the normal 4:3 aspect ratio. May produce graphical glitches in the revealed areas.\nAspect Fit and shows the full 16:9 content."));
+	header(T("Aspect Ratio"));
+	{
+		OptionCheckbox(T("Widescreen"), config::Widescreen,
+				T("Draw geometry outside of the normal 4:3 aspect ratio. May produce graphical glitches in the revealed areas.\nAspect Fit and shows the full 16:9 content."));
 		{
 			DisabledScope scope(!config::Widescreen || config::IntegerScale);
 
@@ -246,12 +246,12 @@ void gui_settings_video()
 					T("Use the full width of the screen or window when its aspect ratio is greater than 16:9.\nAspect Fill and remove black bars. Not compatible with integer scaling."));
 			ImGui::Unindent();
     	}
-    	OptionCheckbox(T("Widescreen Game Cheats"), config::WidescreenGameHacks,
-    			T("Modify the game so that it displays in 16:9 anamorphic format and use horizontal screen stretching. Only some games are supported."));
-    	OptionSlider(T("Horizontal Stretching"), config::ScreenStretching, 100, 250,
-    			T("Stretch the screen horizontally"), "%d%%");
-	    	OptionCheckbox(T("Rotate Screen 90°"), config::Rotate90, T("Rotate the screen 90° counterclockwise"), SettingDetail::Advanced);
-    }
+		OptionCheckbox(T("Widescreen Game Cheats"), config::WidescreenGameHacks,
+				T("Modify the game so that it displays in 16:9 anamorphic format and use horizontal screen stretching. Only some games are supported."));
+		OptionSlider(T("Horizontal Stretching"), config::ScreenStretching, 100, 250,
+				T("Stretch the screen horizontally"), "%d%%");
+		OptionCheckbox(T("Rotate Screen 90°"), config::Rotate90, T("Rotate the screen 90° counterclockwise"), SettingDetail::Advanced);
+	}
 	if (perPixel)
 	{
 		ImGui::Spacing();
@@ -304,24 +304,24 @@ void gui_settings_video()
         		T("Maximum number of transparent layers. May need to be increased for some complex scenes. Decreasing it may improve performance."));
 	}
 	ImGui::Spacing();
-    header(T("Performance"));
+	header(T("Performance"));
 	{
-    	ImGui::Text("%s", T("Automatic Frame Skipping:"));
-    	ImGui::Columns(3, "autoskip", false);
-    	OptionRadioButton(T("Disabled"), config::AutoSkipFrame, 0, T("No frame skipping"));
-    	ImGui::NextColumn();
-    	OptionRadioButton(T("Normal"), config::AutoSkipFrame, 1, T("Skip a frame when the GPU and CPU are both running slow"));
-    	ImGui::NextColumn();
-    	OptionRadioButton(T("Maximum"), config::AutoSkipFrame, 2, T("Skip a frame when the GPU is running slow"));
-    	ImGui::Columns(1, nullptr, false);
+		ImGui::Text("%s", T("Automatic Frame Skipping:"));
+		ImGui::Columns(3, "autoskip", false);
+		OptionRadioButton(T("Disabled"), config::AutoSkipFrame, 0, T("No frame skipping"));
+		ImGui::NextColumn();
+		OptionRadioButton(T("Normal"), config::AutoSkipFrame, 1, T("Skip a frame when the GPU and CPU are both running slow"));
+		ImGui::NextColumn();
+		OptionRadioButton(T("Maximum"), config::AutoSkipFrame, 2, T("Skip a frame when the GPU is running slow"));
+		ImGui::Columns(1, nullptr, false);
 
-    	OptionArrowButtons(T("Frame Skipping"), config::SkipFrame, 0, 6,
-    			T("Number of frames to skip between two actually rendered frames"), nullptr, SettingDetail::Advanced);
-    	OptionCheckbox(T("Shadows"), config::ModifierVolumes,
-    			T("Enable modifier volumes, usually used for shadows"), SettingDetail::Advanced);
-    	OptionCheckbox(T("Fog"), config::Fog, T("Enable fog effects"), SettingDetail::Advanced);
-    }
-    ImGui::Spacing();
+		OptionArrowButtons(T("Frame Skipping"), config::SkipFrame, 0, 6,
+				T("Number of frames to skip between two actually rendered frames"), nullptr, SettingDetail::Advanced);
+		OptionCheckbox(T("Shadows"), config::ModifierVolumes,
+				T("Enable modifier volumes, usually used for shadows"), SettingDetail::Advanced);
+		OptionCheckbox(T("Fog"), config::Fog, T("Enable fog effects"), SettingDetail::Advanced);
+	}
+	ImGui::Spacing();
 
 	if (isSettingVisible(SettingDetail::Advanced))
 	{
