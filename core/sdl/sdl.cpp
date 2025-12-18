@@ -79,12 +79,14 @@ static void sdl_open_joystick(int index)
 	try {
 #ifdef __SWITCH__
 		std::shared_ptr<SDLGamepad> gamepad = std::make_shared<SwitchGamepad>(index < MAPLE_PORTS ? index : -1, index, pJoystick);
-#else
+#elif defined(USE_DREAMLINK_DEVICES)
 		std::shared_ptr<SDLGamepad> gamepad;
 		if (DreamLinkGamepad::isDreamcastController(index))
 			gamepad = std::make_shared<DreamLinkGamepad>(index < MAPLE_PORTS ? index : -1, index, pJoystick);
 		else
 			gamepad = std::make_shared<SDLGamepad>(index < MAPLE_PORTS ? index : -1, index, pJoystick);
+#else
+		std::shared_ptr<SDLGamepad> gamepad = std::make_shared<SDLGamepad>(index < MAPLE_PORTS ? index : -1, index, pJoystick);
 #endif
 		SDLGamepad::AddSDLGamepad(gamepad);
 	} catch (const FlycastException& e) {
@@ -246,21 +248,22 @@ void input_sdl_init()
 		sdl_open_joystick(joy);
 #endif
 	if (SDL_HasScreenKeyboardSupport())
-	{
 		NOTICE_LOG(INPUT, "On-screen keyboard supported");
-		gui_setOnScreenKeyboardCallback([](bool show) {
-			// We should be able to use SDL_IsScreenKeyboardShown() but it doesn't seem to work on Xbox
-			static bool visible;
-			if (window != nullptr && visible != show)
-			{
-				visible = show;
-				if (show)
-					SDL_StartTextInput();
-				else
-					SDL_StopTextInput();
-			}
-		});
-	}
+	// This is used for both on-screen and regular keyboards. For the latter, it disables
+	// text input processing when not required, which fixes the accent menu showing up on macOS
+	// and may improve performance on all platforms.
+#ifndef __SWITCH__
+	gui_setOnScreenKeyboardCallback([](bool show) {
+		if (window != nullptr)
+		{
+			if (show && !SDL_IsTextInputActive())
+				SDL_StartTextInput();
+			else if (!show && SDL_IsTextInputActive())
+				SDL_StopTextInput();
+		}
+	});
+#endif
+
 	if (settings.input.keyboardLangId == KeyboardLayout::US)
 		settings.input.keyboardLangId = detectKeyboardLayout();
 	barcode.clear();
@@ -271,7 +274,7 @@ void input_sdl_init()
 #if (defined(__APPLE__) && defined(TARGET_OS_MAC))
 	SDL_GameControllerAddMapping("0300000009120000072f000000010000,OrangeFox86 DreamPicoPort,a:b0,b:b1,x:b3,y:b4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,dpdown:h0.4,leftx:a0,lefty:a1,lefttrigger:a2,rightx:a3,righty:a4,righttrigger:a5,start:b11");
 #elif defined(_WIN32)
-	SDL_GameControllerAddMapping("0300000009120000072f000000000000,OrangeFox86 DreamPicoPort,a:b0,b:b1,x:b3,y:b4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,dpdown:h0.4,leftx:a0,lefty:a1,lefttrigger:-a2,rightx:a3,righty:a4,righttrigger:-a5,start:b11");
+	SDL_GameControllerAddMapping("0300000009120000072f000000000000,OrangeFox86 DreamPicoPort,a:b0,b:b1,x:b3,y:b4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,dpdown:h0.4,leftx:a0,lefty:a1,lefttrigger:a2,rightx:a3,righty:a4,righttrigger:a5,start:b11");
 #endif
 }
 
@@ -668,7 +671,7 @@ bool sdl_recreate_window(u32 flags)
 	window_maximized = cfgLoadBool("window", "maximized", window_maximized);
 	if (window != nullptr)
 		get_window_state();
-	
+
 	// Check if the saved window position is on a valid display, preventing Flycast from opening on a screen no longer pluged in
 	bool validPosition = false;
 	int numDisplays = SDL_GetNumVideoDisplays();
@@ -684,7 +687,7 @@ bool sdl_recreate_window(u32 flags)
 				}
 			}
 		}
-		
+
 		// If position is invalid, reset to primary display, avoiding Flycast from opening in a missing window and not being seen when windowed
 		if (!validPosition) {
 			NOTICE_LOG(COMMON, "Saved window position is not on any connected display, resetting to primary display");
@@ -802,19 +805,19 @@ static void setClipboardText(void *, const char *text)
 #ifdef TARGET_UWP
 static int suspendEventFilter(void *userdata, SDL_Event *event)
 {
-	if (event->type == SDL_APP_WILLENTERBACKGROUND)
-	{
-		if (gameRunning)
-		{
-			try {
-				emu.stop();
-				if (config::AutoSaveState)
-					dc_savestate(config::SavestateSlot);
-			} catch (const FlycastException& e) { }
-		}
-		return 0;
-	}
-	return 1;
+    if (event->type == SDL_APP_WILLENTERBACKGROUND)
+    {
+        if (gameRunning)
+        {
+            try {
+                emu.stop();
+                if (config::AutoSaveState)
+                    dc_savestate(config::SavestateSlot);
+            } catch (const FlycastException& e) { }
+        }
+        return 0;
+    }
+    return 1;
 }
 #endif
 

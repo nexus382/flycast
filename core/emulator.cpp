@@ -35,6 +35,7 @@
 #include "hw/pvr/Renderer_if.h"
 #include "hw/arm7/arm7_rec.h"
 #include "network/ggpo.h"
+#include "network/ice.h"
 #include "hw/mem/mem_watch.h"
 #include "network/net_handshake.h"
 #include "network/naomi_network.h"
@@ -742,7 +743,8 @@ void Emulator::unloadGame()
 		} catch (const FlycastException& e) {
 			ERROR_LOG(COMMON, "%s", e.what());
 		}
-
+		// Flush the VMU files to disk
+		mcfg_DestroyDevices(true);
 		config::Settings::instance().reset();
 		config::Settings::instance().load(false);
 		settings.content.path.clear();
@@ -750,6 +752,7 @@ void Emulator::unloadGame()
 		settings.content.fileName.clear();
 		settings.content.title.clear();
 		settings.platform.system = DC_PLATFORM_DREAMCAST;
+		custom_texture.terminate();
 		state = Init;
 		EventManager::event(Event::Terminate);
 	}
@@ -773,12 +776,13 @@ void Emulator::term()
 			delete recompiler;
 			recompiler = nullptr;
 		}
-		custom_texture.Terminate();	// lr: avoid deadlock on exit (win32)
+		custom_texture.terminate();	// lr: avoid deadlock on exit (win32)
 		reios_term();
 		aica::term();
 		pvr::term();
 		mem_Term();
 		libGDR_term();
+		ice::term();
 
 		state = Terminated;
 	}
@@ -839,6 +843,8 @@ void loadGameSpecificSettings()
 	{
 		reios_disk_id();
 		settings.content.gameId = trim_trailing_ws(std::string(ip_meta.product_number, sizeof(ip_meta.product_number)));
+		// in case there is a null character followed by garbage, which happens
+		settings.content.gameId = settings.content.gameId.c_str();
 
 		if (settings.content.gameId.empty())
 			return;
@@ -848,6 +854,7 @@ void loadGameSpecificSettings()
 	loadSpecialSettings();
 
 	config::Settings::instance().setGameId(settings.content.gameId);
+	custom_texture.init();
 
 	// Reload per-game settings
 	config::Settings::instance().load(true);
@@ -879,7 +886,11 @@ void Emulator::stepRange(u32 from, u32 to)
 
 void Emulator::loadstate(Deserializer& deser)
 {
-	custom_texture.Terminate();
+	if (!custom_texture.preloaded())
+	{
+		custom_texture.terminate();
+		custom_texture.init();
+	}
 #if FEAT_AREC == DYNAREC_JIT
 	aica::arm::recompiler::flush();
 #endif
@@ -1101,6 +1112,7 @@ void Emulator::diskChange()
 {
 	config::Settings::instance().reset();
 	config::Settings::instance().load(false);
+	custom_texture.terminate();
 	if (!settings.content.path.empty())
 	{
 		hostfs::FileInfo info = hostfs::storage().getFileInfo(settings.content.path);
@@ -1116,7 +1128,6 @@ void Emulator::diskChange()
 	cheatManager.reset(settings.content.gameId);
 	if (cheatManager.isWidescreen())
 		config::ScreenStretching.override(134);	// 4:3 -> 16:9
-	custom_texture.Terminate();
 	EventManager::event(Event::DiskChange);
 }
 

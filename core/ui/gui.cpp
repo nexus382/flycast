@@ -43,6 +43,7 @@
 #include "IconsFontAwesome6.h"
 #include <stb_image_write.h>
 #include "hw/pvr/Renderer_if.h"
+#include "rend/CustomTexture.h"
 #include "hw/mem/addrspace.h"
 #include "hw/maple/maple_if.h"
 #if defined(USE_SDL)
@@ -68,6 +69,7 @@ std::unique_ptr<ImGuiDriver> imguiDriver;
 static bool inited = false;
 GuiState gui_state = GuiState::Main;
 static bool commandLineStart;
+std::string launchOnExitUri;
 static u32 mouseButtons;
 static int mouseX, mouseY;
 static float mouseWheel;
@@ -79,6 +81,7 @@ static std::mutex osd_message_mutex;
 static void (*showOnScreenKeyboard)(bool show);
 static bool keysUpNextFrame[512];
 bool uiUserScaleUpdated;
+static bool clearActiveIdNextFrame;
 
 GameScanner scanner;
 static BackgroundGameLoader gameLoader;
@@ -135,6 +138,22 @@ void gui_init()
 	EventManager::listen(Event::Terminate, emuEventCallback);
     ggpo::receiveChatMessages([](int playerNum, const std::string& msg) { chat.receive(playerNum, msg); });
 
+#ifdef TARGET_UWP
+	{
+		// Detect when the on-screen keyboard is hidden and clear the text input widget id to validate the edit.
+		// Otherwise the user will cancel the edit if he presses B, and must press A in the case of multi-line inputs.
+		using namespace Windows::UI::ViewManagement;
+		InputPane^ inputPane = InputPane::GetForCurrentView();
+		if (inputPane)
+		{
+			inputPane->Hiding += ref new Windows::Foundation::TypedEventHandler<InputPane^, InputPaneVisibilityEventArgs^>(
+				[](InputPane^, InputPaneVisibilityEventArgs^)
+				{
+					clearActiveIdNextFrame = true;
+				});
+		}
+	}
+#endif
 }
 
 static ImGuiKey keycodeToImGuiKey(u8 keycode)
@@ -436,19 +455,11 @@ static void gui_newFrame()
 
 	if (showOnScreenKeyboard != nullptr)
 		showOnScreenKeyboard(io.WantTextInput);
-#ifdef USE_SDL
-	else
+	if (clearActiveIdNextFrame && io.WantTextInput)
 	{
-		if (io.WantTextInput && !SDL_IsTextInputActive())
-		{
-			SDL_StartTextInput();
-		}
-		else if (!io.WantTextInput && SDL_IsTextInputActive())
-		{
-			SDL_StopTextInput();
-		}
+		ImGui::ClearActiveID();
+		clearActiveIdNextFrame = false;
 	}
-#endif
 }
 
 static void delayedKeysUp()
@@ -691,7 +702,7 @@ static void gui_display_commands()
 			char cardBuf[64] {};
 			strncpy(cardBuf, card_reader::barcodeGetCard().c_str(), sizeof(cardBuf) - 1);
 			ImGui::SetNextItemWidth(uiScaled(buttonWidth));
-			if (ImGui::InputText("##barcode", cardBuf, sizeof(cardBuf), ImGuiInputTextFlags_None, nullptr, nullptr))
+			if (InputText("##barcode", cardBuf, sizeof(cardBuf), ImGuiInputTextFlags_None))
 				card_reader::barcodeSetCard(cardBuf);
 		}
 
@@ -701,7 +712,7 @@ static void gui_display_commands()
 		bool hasDisconnectedDreamLink = false;
 		for (auto& dreamlink : DreamLink::activeDreamLinks)
 		{
-			if (dreamlink)
+			if (dreamlink && !dreamlink->isForPhysicalController())
 			{
 				hasAnyDreamLinks = true;
 				if (!dreamlink->isConnected())
@@ -1278,7 +1289,7 @@ static void gui_network_start()
 			try {
 				networkStatus.get();
 			}
-			catch (const FlycastException& e) {
+			catch (const FlycastException&) {
 			}
 			gui_stop_game();
 		}
@@ -1288,6 +1299,60 @@ static void gui_network_start()
 	if ((kcode[0] & DC_BTN_START) == 0 && NetworkHandshake::instance != nullptr)
 		NetworkHandshake::instance->startNow();
 }
+
+#ifdef TARGET_UWP
+#include "oslib/http_client.h"
+
+static bool checkUWPProtocolActivation()
+{
+	// Check for UWP protocol-activated ROM path
+	static int checkCount = 90; // Try many times - OnAppActivated may not be called yet
+	if (checkCount == 0)
+		return false;
+	checkCount--;
+	char* activationUri = SDL_WinRTGetProtocolActivationURI();
+	if (activationUri == nullptr)
+		return false;
+
+	std::string uri(activationUri);
+	SDL_free(activationUri);
+	INFO_LOG(BOOT, "Protocol activation URI: %s", uri.c_str());
+	size_t qpos = uri.find('?');
+	if (qpos != std::string::npos)
+	{
+		uri = uri.substr(qpos + 1);
+		// Parse launchOnExit parameter
+		size_t exitPos = uri.find("launchOnExit=");
+		if (exitPos != std::string::npos) {
+			exitPos += 13; // Skip "launchOnExit="
+			size_t exitEnd = uri.find('&', exitPos);
+			if (exitEnd == std::string::npos)
+				exitEnd = uri.size();
+			std::string exitUri = uri.substr(exitPos, exitEnd - exitPos);
+			launchOnExitUri = http::urlDecode(exitUri);
+			INFO_LOG(BOOT, "LaunchOnExit URI: %s", launchOnExitUri.c_str());
+			// SDL WinRT will automatically handle launchOnExit from the protocol URI
+		}
+
+		uri = http::urlDecode(uri);
+
+		// Parse ROM path (first quoted string)
+		size_t s = uri.find('"');
+		if (s != std::string::npos)
+		{
+			size_t e = uri.find('"', s + 1);
+			if (e != std::string::npos)
+			{
+				std::string romPath = uri.substr(s + 1, e - (s + 1));
+				commandLineStart = true;
+				gui_start_game(romPath);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+#endif
 
 static void gui_display_loadscreen()
 {
@@ -1311,8 +1376,10 @@ static void gui_display_loadscreen()
 				else
 					label = "Loading...";
 			}
+			
+			const bool customTexPreloading = custom_texture.isPreloading();
 
-			if (gameLoader.ready())
+			if (gameLoader.ready() && !customTexPreloading)
 			{
 				if (NetworkHandshake::instance != nullptr)
 				{
@@ -1327,11 +1394,35 @@ static void gui_display_loadscreen()
 			}
 			else
 			{
+				int texLoaded = 0;
+				int texTotal = 0;
+				size_t loaded_size_b = 0;
+				custom_texture.getPreloadProgress(texLoaded, texTotal, loaded_size_b);
+				
 				ImGui::Text("%s", label);
+				float progress = 0;
+				char overlay[64] = "";
+				
+				if (!gameLoader.ready())
 				{
-					ImguiStyleColor _(ImGuiCol_PlotHistogram, ImVec4(0.557f, 0.268f, 0.965f, 1.f));
-					ImGui::ProgressBar(gameLoader.getProgress().progress, ImVec2(-1, uiScaled(20.f)), "");
+					progress = gameLoader.getProgress().progress;
 				}
+				else if (customTexPreloading)
+				{
+					ImGui::Spacing();
+					ImGui::Text("Preloading custom textures");
+					progress = (texTotal == -1 || texTotal == 0) ? 0.f : (float)texLoaded / (float)texTotal;
+					if (texTotal == -1)
+						snprintf(overlay, sizeof(overlay), "Preparing...");
+					else
+					{
+						float loaded_size_mb = (float)loaded_size_b / (1024 * 1024);
+						snprintf(overlay, sizeof(overlay), "%d / %d (%.1f MB)", texLoaded, texTotal, loaded_size_mb);
+					}
+				}
+				
+				ImguiStyleColor _(ImGuiCol_PlotHistogram, ImVec4(0.557f, 0.268f, 0.965f, 1.f));
+				ImGui::ProgressBar(progress, ImVec2(-1, uiScaled(20.f)), overlay);
 
 				float currentwidth = ImGui::GetContentRegionAvail().x;
 				ImGui::SetCursorPosX((currentwidth - uiScaled(100.f)) / 2.f + ImGui::GetStyle().WindowPadding.x);
@@ -1358,12 +1449,19 @@ void gui_display_ui()
 		return;
 	if (gui_state == GuiState::Main)
 	{
+#ifdef TARGET_UWP
+		if (checkUWPProtocolActivation())
+			return;
+#endif
 		if (!settings.content.path.empty() || settings.naomi.slave)
 		{
 #ifndef __ANDROID__
 			commandLineStart = true;
 #endif
-			gui_start_game(settings.content.path);
+			if (settings.content.path.substr(0, 7) == "dc_bios")
+				gui_start_game("");
+			else
+				gui_start_game(settings.content.path);
 			return;
 		}
 	}

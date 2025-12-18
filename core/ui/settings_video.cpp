@@ -213,8 +213,18 @@ void gui_settings_video()
     	OptionCheckbox("Full Framebuffer Emulation", config::EmulateFramebuffer,
     			"Fully accurate VRAM framebuffer emulation. Helps games that directly access the framebuffer for special effects. "
     			"Very slow and incompatible with upscaling and wide screen.");
-    	OptionCheckbox("Load Custom Textures", config::CustomTextures,
-    			"Load custom/high-res textures from data/textures/<game id>");
+		{
+			DisabledScope scope(game_started);
+			OptionCheckbox("Load Custom Textures", config::CustomTextures,
+						   "Load custom/high-res textures from data/textures/<game id>");
+			ImGui::Indent();
+			{
+				DisabledScope scope(!config::CustomTextures.get());
+				OptionCheckbox("Preload Custom Textures", config::PreloadCustomTextures,
+							   "Preload custom textures at game start. May improve performance but increases memory usage");
+			}
+			ImGui::Unindent();
+		}
     }
 	ImGui::Spacing();
     header("Aspect Ratio");
@@ -368,19 +378,8 @@ void gui_settings_video()
 
     	OptionCheckbox("Show FPS Counter", config::ShowFPS, "Show on-screen frame/sec counter");
     }
-	ImGui::Spacing();
-    header("Texture Upscaling");
-    {
-#ifdef _OPENMP
-    	OptionArrowButtons("Texture Upscaling", config::TextureUpscale, 1, 8,
-    			"Upscale textures with the xBRZ algorithm. Only on fast platforms and for certain 2D games", "x%d");
-    	OptionSlider("Texture Max Size", config::MaxFilteredTextureSize, 8, 1024,
-    			"Textures larger than this dimension squared will not be upscaled");
-    	OptionArrowButtons("Max Threads", config::MaxThreads, 1, 8,
-    			"Maximum number of threads to use for texture upscaling. Recommended: number of physical cores minus one");
-#endif
-    }
 #ifdef VIDEO_ROUTING
+	ImGui::Spacing();
 #ifdef __APPLE__
 	header("Video Routing (Syphon)");
 #elif defined(_WIN32)
