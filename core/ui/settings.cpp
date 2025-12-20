@@ -77,19 +77,19 @@ static void gui_settings_advanced()
 	{
 		OptionCheckbox("Enable GDB", config::GDB, "GDB debugging support, disables Dynarec and dramatically reduces performance when a debugger is connected.", SettingDetail::Advanced);
 		OptionCheckbox("Wait for connection", config::GDBWaitForConnection, "Start emulation once the debugger is connected.", SettingDetail::Advanced);
-	#ifndef __ANDROID
+		#ifndef __ANDROID
 		OptionCheckbox("Serial Console", config::SerialConsole, "Dump the Dreamcast serial console to stdout", SettingDetail::Advanced);
 		OptionCheckbox("Serial PTY", config::SerialPTY, "Requires the option \"Serial Console\" to work", SettingDetail::Advanced);
-	#endif
+		#endif
 
-	static int gdbport = config::GDBPort;
-	if (ImGui::InputInt("GDB port", &gdbport))
-	{
-		config::GDBPort = gdbport;
-	}
-	const ImGuiStyle& style = ImGui::GetStyle();
-	ImGui::SameLine(0, style.ItemInnerSpacing.x);
-	ShowHelpMarker("Default port is 3263");
+		static int gdbport = config::GDBPort;
+		if (ImGui::InputInt("GDB port", &gdbport))
+		{
+			config::GDBPort = gdbport;
+		}
+		const ImGuiStyle& style = ImGui::GetStyle();
+		ImGui::SameLine(0, style.ItemInnerSpacing.x);
+		ShowHelpMarker("Default port is 3263");
 	}
 #endif
 	ImGui::Spacing();
