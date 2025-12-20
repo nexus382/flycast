@@ -47,7 +47,7 @@ SettingDetail getSettingDetail();
 bool isSettingVisible(SettingDetail detail);
 
 void select_file_popup(const char *prompt, StringCallback callback,
-                bool selectFile = false, const std::string& extension = "");
+        bool selectFile = false, const std::string& extension = "");
 
 void scrollWhenDraggingOnVoid(ImGuiMouseButton mouse_button = ImGuiMouseButton_Left);
 
@@ -64,7 +64,7 @@ template<typename T>
 bool OptionRadioButton(const char *name, config::Option<T>& option, T value, const char *help = nullptr, SettingDetail detail = SettingDetail::Basic);
 template<bool PerGameOption>
 void OptionComboBox(const char *name, config::Option<int, PerGameOption>& option, const char *values[], int count,
-                        const char *help = nullptr, SettingDetail detail = SettingDetail::Basic);
+            const char *help = nullptr, SettingDetail detail = SettingDetail::Basic);
 bool OptionArrowButtons(const char *name, config::Option<int>& option, int min, int max, const char *help = nullptr, const char *format = "%d", SettingDetail detail = SettingDetail::Basic);
 
 static inline void centerNextWindow()
