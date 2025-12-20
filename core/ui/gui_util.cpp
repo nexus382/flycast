@@ -615,7 +615,7 @@ template bool OptionRadioButton<int>(const char *name, config::Option<int>& opti
 
 template<bool PerGameOption>
 void OptionComboBox(const char *name, config::Option<int, PerGameOption>& option, const char *values[], int count,
-                        const char *help, SettingDetail detail)
+            const char *help, SettingDetail detail)
 {
         if (!isSettingVisible(detail))
                 return;
