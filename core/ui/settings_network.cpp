@@ -195,12 +195,12 @@ void gui_settings_network()
 	{
 		OptionCheckbox(T("Enable UPnP"), config::EnableUPnP, T("Automatically configure your network router for netplay"));
 		OptionCheckbox(T("Broadcast Digital Outputs"), config::NetworkOutput, T("Broadcast digital outputs and force-feedback state on TCP port 8000. "
-				"Compatible with the \"-output network\" MAME option. Arcade games only."));
+				"Compatible with the \"-output network\" MAME option. Arcade games only."), SettingDetail::Advanced);
 		{
 			DisabledScope scope(game_started);
 
 			OptionCheckbox(T("Broadband Adapter Emulation"), config::EmulateBBA,
-					T("Emulate the Ethernet Broadband Adapter (BBA) instead of the Modem"));
+					T("Emulate the Ethernet Broadband Adapter (BBA) instead of the Modem"), SettingDetail::Advanced);
 		}
 		OptionCheckbox(T("Use DCNet"), config::UseDCNet, T("Use the DCNet cloud service for Dreamcast Internet access."));
 

@@ -36,8 +36,18 @@
 
 typedef bool (*StringCallback)(bool cancelled, std::string selection);
 
+enum class SettingDetail
+{
+        Basic,
+        Advanced
+};
+
+void setSettingDetail(SettingDetail detail);
+SettingDetail getSettingDetail();
+bool isSettingVisible(SettingDetail detail);
+
 void select_file_popup(const char *prompt, StringCallback callback,
-		bool selectFile = false, const std::string& extension = "");
+        bool selectFile = false, const std::string& extension = "");
 
 void scrollWhenDraggingOnVoid(ImGuiMouseButton mouse_button = ImGuiMouseButton_Left);
 
@@ -47,15 +57,15 @@ IMGUI_API const ImWchar*    GetGlyphRangesChineseTraditionalOfficial();// Defaul
 // Helper to display a little (?) mark which shows a tooltip when hovered.
 void ShowHelpMarker(const char* desc);
 template<bool PerGameOption>
-bool OptionCheckbox(const char *name, config::Option<bool, PerGameOption>& option, const char *help = nullptr);
+bool OptionCheckbox(const char *name, config::Option<bool, PerGameOption>& option, const char *help = nullptr, SettingDetail detail = SettingDetail::Basic);
 template<bool PerGameOption>
-bool OptionSlider(const char *name, config::Option<int, PerGameOption>& option, int min, int max, const char *help = nullptr, const char *format = nullptr);
+bool OptionSlider(const char *name, config::Option<int, PerGameOption>& option, int min, int max, const char *help = nullptr, const char *format = nullptr, SettingDetail detail = SettingDetail::Basic);
 template<typename T>
-bool OptionRadioButton(const char *name, config::Option<T>& option, T value, const char *help = nullptr);
+bool OptionRadioButton(const char *name, config::Option<T>& option, T value, const char *help = nullptr, SettingDetail detail = SettingDetail::Basic);
 template<bool PerGameOption>
 void OptionComboBox(const char *name, config::Option<int, PerGameOption>& option, const char *values[], int count,
-			const char *help = nullptr);
-bool OptionArrowButtons(const char *name, config::Option<int>& option, int min, int max, const char *help = nullptr, const char *format = "%d");
+            const char *help = nullptr, SettingDetail detail = SettingDetail::Basic);
+bool OptionArrowButtons(const char *name, config::Option<int>& option, int min, int max, const char *help = nullptr, const char *format = "%d", SettingDetail detail = SettingDetail::Basic);
 
 static inline void centerNextWindow()
 {

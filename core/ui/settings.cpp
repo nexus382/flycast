@@ -35,20 +35,20 @@
 static void gui_settings_advanced()
 {
 #if FEAT_SHREC != DYNAREC_NONE
-    header(T("CPU Mode"));
-    {
+	header(T("CPU Mode"));
+	{
 		ImGui::Columns(2, "cpu_modes", false);
 		OptionRadioButton(T("Dynarec"), config::DynarecEnabled, true,
-				T("Use the dynamic recompiler. Recommended in most cases"));
+				T("Use the dynamic recompiler. Recommended in most cases"), SettingDetail::Advanced);
 		ImGui::NextColumn();
 		OptionRadioButton(T("Interpreter"), config::DynarecEnabled, false,
-				T("Use the interpreter. Very slow but may help in case of a dynarec problem"));
+				T("Use the interpreter. Very slow but may help in case of a dynarec problem"), SettingDetail::Advanced);
 		ImGui::Columns(1, NULL, false);
 
 		OptionSlider(T("SH4 Clock"), config::Sh4Clock, 100, 300,
 				T("Over/Underclock the main SH4 CPU. Default is 200 MHz. Other values may crash, freeze or trigger unexpected nuclear reactions."),
-				"%d MHz");
-    }
+				"%d MHz", SettingDetail::Advanced);
+	}
 #ifdef GDB_SERVER
 	ImGui::Spacing();
 	header("Virtual memory addresses");
@@ -75,12 +75,12 @@ static void gui_settings_advanced()
 	ImGui::Spacing();
 	header("Debugging");
 	{
-		OptionCheckbox("Enable GDB", config::GDB, "GDB debugging support, disables Dynarec and dramatically reduces performance when a debugger is connected.");
-		OptionCheckbox("Wait for connection", config::GDBWaitForConnection, "Start emulation once the debugger is connected.");
-#ifndef __ANDROID
-		OptionCheckbox("Serial Console", config::SerialConsole, "Dump the Dreamcast serial console to stdout");
-		OptionCheckbox("Serial PTY", config::SerialPTY, "Requires the option \"Serial Console\" to work");
-#endif
+		OptionCheckbox("Enable GDB", config::GDB, "GDB debugging support, disables Dynarec and dramatically reduces performance when a debugger is connected.", SettingDetail::Advanced);
+		OptionCheckbox("Wait for connection", config::GDBWaitForConnection, "Start emulation once the debugger is connected.", SettingDetail::Advanced);
+		#ifndef __ANDROID
+		OptionCheckbox("Serial Console", config::SerialConsole, "Dump the Dreamcast serial console to stdout", SettingDetail::Advanced);
+		OptionCheckbox("Serial PTY", config::SerialPTY, "Requires the option \"Serial Console\" to work", SettingDetail::Advanced);
+		#endif
 
 		static int gdbport = config::GDBPort;
 		if (ImGui::InputInt("GDB port", &gdbport))
@@ -94,22 +94,22 @@ static void gui_settings_advanced()
 #endif
 	ImGui::Spacing();
 #endif
-    header(T("Other"));
-    {
-    	OptionCheckbox(T("HLE BIOS"), config::UseReios, T("Force high-level BIOS emulation"));
-        OptionCheckbox(T("Multi-threaded emulation"), config::ThreadedRendering,
-        		T("Run the emulated CPU and GPU on different threads"));
+	header(T("Other"));
+	{
+		OptionCheckbox(T("HLE BIOS"), config::UseReios, T("Force high-level BIOS emulation"));
+		OptionCheckbox(T("Multi-threaded emulation"), config::ThreadedRendering,
+				T("Run the emulated CPU and GPU on different threads"));
 #if !defined(__ANDROID) && !defined(GDB_SERVER)
-        OptionCheckbox(T("Serial Console"), config::SerialConsole,
-        		T("Dump the Dreamcast serial console to stdout"));
+		OptionCheckbox(T("Serial Console"), config::SerialConsole,
+				T("Dump the Dreamcast serial console to stdout"), SettingDetail::Advanced);
 #endif
 		{
 			DisabledScope scope(game_started);
 			OptionCheckbox(T("Dreamcast 32MB RAM Mod"), config::RamMod32MB,
-					T("Enables 32MB RAM Mod for Dreamcast. May affect compatibility"));
+					T("Enables 32MB RAM Mod for Dreamcast. May affect compatibility"), SettingDetail::Advanced);
 		}
-        OptionCheckbox(T("Dump Textures"), config::DumpTextures,
-        		T("Dump all textures into data/texdump/<game id>"));
+		OptionCheckbox(T("Dump Textures"), config::DumpTextures,
+				T("Dump all textures into data/texdump/<game id>"));
 		ImGui::Indent();
 		{
 			DisabledScope scope(!config::DumpTextures.get());
@@ -117,7 +117,7 @@ static void gui_settings_advanced()
 					T("Always dump textures that are already replaced by custom textures"));
 		}
 		ImGui::Unindent();
-        bool logToFile = config::loadBool("log", "LogToFile", false);
+		bool logToFile = config::loadBool("log", "LogToFile", false);
 		if (ImGui::Checkbox(T("Log to File"), &logToFile))
 			config::saveBool("log", "LogToFile", logToFile);
         ImGui::SameLine();
@@ -239,25 +239,39 @@ void gui_display_settings()
     	}
        	SaveSettings();
     }
-	if (game_started)
-	{
-	    ImGui::SameLine();
-		ImguiStyleVar _(ImGuiStyleVar_FramePadding, ImVec2(uiScaled(16), normal_padding.y));
-		if (config::Settings::instance().hasPerGameConfig())
-		{
-			if (ImGui::Button(T("Delete Game Config"), ScaledVec2(0, 30)))
-			{
-				config::Settings::instance().setPerGameConfig(false);
-				config::Settings::instance().load(false);
-				loadGameSpecificSettings();
-			}
-		}
-		else
-		{
-			if (ImGui::Button(T("Make Game Config"), ScaledVec2(0, 30)))
-				config::Settings::instance().setPerGameConfig(true);
-		}
-	}
+        if (game_started)
+        {
+            ImGui::SameLine();
+                ImguiStyleVar _(ImGuiStyleVar_FramePadding, ImVec2(uiScaled(16), normal_padding.y));
+                if (config::Settings::instance().hasPerGameConfig())
+                {
+                        if (ImGui::Button(T("Delete Game Config"), ScaledVec2(0, 30)))
+                        {
+                                config::Settings::instance().setPerGameConfig(false);
+                                config::Settings::instance().load(false);
+                                loadGameSpecificSettings();
+                        }
+                }
+                else
+                {
+                        if (ImGui::Button(T("Make Game Config"), ScaledVec2(0, 30)))
+                                config::Settings::instance().setPerGameConfig(true);
+                }
+        }
+
+        ImGui::SameLine();
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("%s", T("View"));
+        ImGui::SameLine();
+        bool advancedSettings = getSettingDetail() == SettingDetail::Advanced;
+        const std::string basicLabel = std::string(T("Basic")) + "##settingsView";
+        const std::string advancedLabel = std::string(T("Advanced")) + "##settingsView";
+        if (ImGui::RadioButton(basicLabel.c_str(), !advancedSettings))
+                setSettingDetail(SettingDetail::Basic);
+        ImGui::SameLine();
+        if (ImGui::RadioButton(advancedLabel.c_str(), advancedSettings))
+                setSettingDetail(SettingDetail::Advanced);
+        advancedSettings = getSettingDetail() == SettingDetail::Advanced;
 
 	if (ImGui::GetContentRegionAvail().x >= uiScaled(650.f))
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ScaledVec2(16, 6));
@@ -297,17 +311,17 @@ void gui_display_settings()
 			gui_settings_network();
 			ImGui::EndTabItem();
 		}
-		if (beginTabItem(ICON_FA_MICROCHIP, T("Advanced")))
-		{
-			ImguiStyleVar _(ImGuiStyleVar_FramePadding, normal_padding);
-			gui_settings_advanced();
-			ImGui::EndTabItem();
-		}
+                if (advancedSettings && beginTabItem(ICON_FA_MICROCHIP, T("Advanced")))
+                {
+                        ImguiStyleVar _(ImGuiStyleVar_FramePadding, normal_padding);
+                        gui_settings_advanced();
+                        ImGui::EndTabItem();
+                }
 #if !defined(NDEBUG) || defined(DEBUGFAST) || FC_PROFILER
-		if (beginTabItem(ICON_FA_BUG, "Debug"))
-		{
-			ImguiStyleVar _(ImGuiStyleVar_FramePadding, normal_padding);
-			gui_debug_tab();
+                if (advancedSettings && beginTabItem(ICON_FA_BUG, "Debug"))
+                {
+                        ImguiStyleVar _(ImGuiStyleVar_FramePadding, normal_padding);
+                        gui_debug_tab();
 			ImGui::EndTabItem();
 		}
 #endif
@@ -325,4 +339,3 @@ void gui_display_settings()
     windowDragScroll();
     ImGui::End();
 }
-
