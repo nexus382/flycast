@@ -50,8 +50,9 @@ cmrc_add_resources(flycast-resources
 	WHENCE resources
 	resources/i18n/fr.po
 	resources/i18n/hu.po
+	resources/i18n/ja.po
 	resources/i18n/pt_BR.po
 	resources/i18n/sv.po
-	resources/i18n/zh_CH.po
+	resources/i18n/zh_CN.po
 	resources/i18n/zh_HK.po
 	resources/i18n/zh_TW.po)
